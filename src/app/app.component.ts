@@ -50,8 +50,21 @@ export class AppComponent implements OnInit, OnDestroy {
       console.warn('Android interface not found');
     }
 
+    // ---- cleanup Bootstrap modal/backdrop ที่ค้างอยู่ ----
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.querySelectorAll('.modal.show').forEach(el => {
+      el.classList.remove('show');
+      (el as HTMLElement).style.display = 'none';
+    });
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    // ------------------------------------------------------
+
     sessionStorage.removeItem('userInfo');
     clearInterval(this.interval);
+    this.seconds = 0;
+    this.startCounter();
     this.router.navigate(['/']);
   }
 }
