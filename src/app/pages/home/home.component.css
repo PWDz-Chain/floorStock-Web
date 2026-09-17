@@ -86,3 +86,20 @@
   font-weight: 500;
 }
 
+/* ---- OFFLINE state ---- */
+.status-indicator.status-offline {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.status-indicator.status-offline .status-label {
+  color: #be123c;
+}
+
+.status-pulse-dot.dot-offline {
+  background-color: #e11d48;
+  box-shadow: none;
+  animation: none;
+  opacity: 0.85;
+}
+

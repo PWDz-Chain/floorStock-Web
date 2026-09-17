@@ -16,10 +16,12 @@ import { Location } from '@angular/common';
   styleUrls: ['./hit-dispense.component.css'],
 })
 export class HitDispenseComponent implements OnInit {
-    assets: any = null;
+  assets: any = null;
   isLoading: boolean = false;
   userInfo: any = null;
   selectedDate: string = moment(new Date()).format('YYYY-MM-DD');
+  selectedDateObj: Date = new Date();
+  showCalendar: boolean = false;
 
   listHis: Array<any> = [];
   dataHis: any;
@@ -61,11 +63,33 @@ export class HitDispenseComponent implements OnInit {
     }
   }
 
+  toggleCalendar(event: Event): void {
+    event.stopPropagation();
+    this.showCalendar = !this.showCalendar;
+  }
+
+  closeCalendar(): void {
+    this.showCalendar = false;
+  }
+
+  onCalendarDateChange(date: Date): void {
+    this.service.playSound('click');
+    this.selectedDateObj = date;
+    this.selectedDate = moment(date).format('YYYY-MM-DD');
+    this.campaign.get('picker')?.setValue(date);
+    this.showCalendar = false;
+    if (this.userInfo) {
+      this.fetchHistory();
+    }
+  }
+
   setToday(): void {
     this.service.playSound('click');
     const today = new Date();
+    this.selectedDateObj = today;
     this.campaign.get('picker')?.setValue(today);
     this.selectedDate = moment(today).format('YYYY-MM-DD');
+    this.showCalendar = false;
     if (this.userInfo) {
       this.fetchHistory();
     }
@@ -75,6 +99,7 @@ export class HitDispenseComponent implements OnInit {
     this.service.playSound('click');
     const current = moment(this.selectedDate, 'YYYY-MM-DD');
     const newDate = current.add(offsetDays, 'days').toDate();
+    this.selectedDateObj = newDate;
     this.campaign.get('picker')?.setValue(newDate);
     this.selectedDate = moment(newDate).format('YYYY-MM-DD');
     if (this.userInfo) {

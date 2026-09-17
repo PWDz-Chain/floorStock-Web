@@ -5,33 +5,21 @@
 </div>
 
 <div class="dispen-wrapper" *ngIf="userInfo">
-  <!-- Top Pharmacy Dispense History Header Card (3 Sections) -->
-  <div class="dispen-header-card">
-    <!-- Section 1 (Left): Operation Date Badge -->
-    <div class="header-section section-date">
-      <div class="hospital-info-box">
-        <div class="info-icon-wrapper">
-          <span class="info-emoji">📅</span>
-        </div>
-        <div class="info-text-group">
-          <span class="info-label">วันที่ปฏิบัติงาน</span>
-          <span class="info-value-highlight">{{ selectedDate | date : 'dd/MM/yyyy' }}</span>
-        </div>
-      </div>
-    </div>
+  <!-- Calendar Backdrop -->
+  <div class="calendar-backdrop" *ngIf="showCalendar" (click)="closeCalendar()"></div>
 
-    <!-- Section 2 (Center): Station Branding & Description -->
+  <!-- Top Header Card (2 Sections) -->
+  <div class="dispen-header-card">
+    <!-- Section Left: Title & Branding -->
     <div class="header-section section-station">
       <div class="station-badge">
         <span class="live-dot">●</span> DISPENSE LOG HISTORY
       </div>
       <h2 class="dispen-main-title">ประวัติการจ่ายยา</h2>
-      <p class="dispen-main-subtitle">
-        รายการประวัติการจ่ายยาตามใบสั่งแพทย์
-      </p>
+      <p class="dispen-main-subtitle">รายการประวัติการจ่ายยาตามใบสั่งแพทย์</p>
     </div>
 
-    <!-- Section 3 (Right): Staff Profile & Logout -->
+    <!-- Section Right: Staff Profile & Logout -->
     <div class="header-section section-user">
       <div *ngIf="userInfo.Fullname" class="user-badge-card" [title]="userInfo.Fullname">
         <div class="user-avatar-circle">
@@ -47,6 +35,86 @@
       </div>
     </div>
   </div>
+
+  <!-- Date Filter Bar -->
+  <div class="date-filter-bar">
+    <!-- Left: Nav + Date Picker -->
+    <div class="date-filter-left">
+      <button class="date-nav-btn" (click)="changeDateByOffset(-1)" title="วันก่อนหน้า">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <div class="date-display-chip">
+        <div class="date-chip-inner" (click)="toggleCalendar($event)">
+          <div class="date-chip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div class="date-chip-texts">
+            <span class="date-chip-label">วันที่โซนข้อมูล</span>
+            <span class="date-chip-value">{{ selectedDate | date : 'dd MMM yyyy' }}</span>
+          </div>
+          <svg class="chip-caret" [class.open]="showCalendar" xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        <!-- Custom Calendar Panel -->
+        <div class="calendar-panel" *ngIf="showCalendar" (click)="$event.stopPropagation()">
+          <div class="calendar-panel-header">
+            <div class="cal-header-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span>เลือกวันที่</span>
+            <button class="cal-close-btn" (click)="closeCalendar()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="calendar-body">
+            <mat-calendar
+              [selected]="selectedDateObj"
+              (selectedChange)="onCalendarDateChange($event)"
+            ></mat-calendar>
+          </div>
+        </div>
+      </div>
+
+      <button class="date-nav-btn" (click)="changeDateByOffset(1)" title="วันถัดไป">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <button class="date-today-btn" (click)="setToday()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="margin-right:5px">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        วันนี้
+      </button>
+    </div>
+
+    <!-- Right: Summary Badge -->
+    <div class="date-filter-right">
+      <div class="result-pill" *ngIf="listHis.length > 0; else noResult">
+        <span class="result-dot"></span>
+        <span class="result-text">{{ listHis.length }}</span>
+        <span class="result-label">รายการ</span>
+      </div>
+      <ng-template #noResult>
+        <div class="no-result-pill">
+          <span>ไม่พบรายการ</span>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
 
   <!-- Main Table Card -->
   <div class="dispen-table-card">

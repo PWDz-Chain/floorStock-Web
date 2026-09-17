@@ -12,7 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppService } from './app.service';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ButtombarComponent } from './bar/buttombar/buttombar.component';
@@ -46,6 +46,7 @@ import { HitDispenseComponent } from './pages/hit-dispense/hit-dispense.componen
     AppRoutingModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     MaterialModules,
     HttpClientModule,
     MatCardModule,

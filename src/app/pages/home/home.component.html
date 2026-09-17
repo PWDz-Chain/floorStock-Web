@@ -1,9 +1,11 @@
 <div class="kiosk-center-stage">
   <!-- Live Kiosk Status Bar -->
   <div class="home-status-widget">
-    <div class="status-indicator">
-      <span class="status-pulse-dot"></span>
-      <span class="status-label">ตู้พร้อมใช้งาน • ONLINE</span>
+    <div class="status-indicator" [class.status-offline]="!apiOnline">
+      <span class="status-pulse-dot" [class.dot-offline]="!apiOnline"></span>
+      <span class="status-label">
+        {{ apiOnline ? 'ตู้พร้อมใช้งาน • ONLINE' : 'ไม่สามารถเชื่อมต่อได้ • OFFLINE' }}
+      </span>
     </div>
     <div class="clock-display">
       <span class="clock-time">{{ currentTime }}</span>

@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AppService } from 'src/app/app.service';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -11,9 +13,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   assets: any = null;
   currentTime: string = '';
   currentDate: string = '';
+  apiOnline: boolean = false;
   private timer: any = null;
+  private healthTimer: any = null;
 
-  constructor(private appService: AppService, private router: Router) {
+  constructor(private appService: AppService, private router: Router, private http: HttpClient) {
     this.assets = this.appService.assets;
     sessionStorage.removeItem('userInfo');
   }
@@ -21,12 +25,22 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateClock();
     this.timer = setInterval(() => this.updateClock(), 1000);
+    // เช็ค API ครั้งแรกทันที แล้วเช็คซ้ำทุก 60 วินาที
+    this.checkApiStatus();
+    this.healthTimer = setInterval(() => this.checkApiStatus(), 60000);
   }
 
   ngOnDestroy(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    if (this.timer) clearInterval(this.timer);
+    if (this.healthTimer) clearInterval(this.healthTimer);
+  }
+
+  checkApiStatus(): void {
+    this.http.get(`${environment.baseUrl}/health`, { observe: 'response' })
+      .subscribe({
+        next: () => { this.apiOnline = true; },
+        error: () => { this.apiOnline = false; },
+      });
   }
 
   updateClock(): void {
