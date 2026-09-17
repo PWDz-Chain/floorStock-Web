@@ -1,0 +1,156 @@
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+<div class="refill-his-wrapper">
+  <!-- Header -->
+  <div class="refill-his-header">
+    <span class="material-icons refill-his-icon">history</span>
+    <div>
+      <h1 class="refill-his-title">ประวัติการเติมสต็อกยา</h1>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-row">
+
+      <!-- วันที่จาก -->
+      <div class="filter-group">
+        <label class="filter-label" for="filterDateFrom">
+          <span class="material-icons filter-label-icon">calendar_today</span>
+          วันที่เติม (จาก)
+        </label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="filterDateFrom"
+          (change)="applyFilter()"
+          id="filterDateFrom"
+        />
+      </div>
+
+      <!-- วันที่ถึง -->
+      <div class="filter-group">
+        <label class="filter-label" for="filterDateTo">
+          <span class="material-icons filter-label-icon">event</span>
+          วันที่เติม (ถึง)
+        </label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="filterDateTo"
+          (change)="applyFilter()"
+          id="filterDateTo"
+        />
+      </div>
+
+      <!-- รหัสยา -->
+      <div class="filter-group filter-group-wide">
+        <label class="filter-label" for="filterDrugCd">
+          <span class="material-icons filter-label-icon">qr_code</span>
+          รหัสยา
+        </label>
+        <input
+          type="text"
+          class="filter-input"
+          placeholder="ค้นหารหัสยา..."
+          [(ngModel)]="filterDrugCd"
+          (input)="applyFilter()"
+          id="filterDrugCd"
+        />
+      </div>
+
+      <!-- รายการยา -->
+      <div class="filter-group filter-group-wide">
+        <label class="filter-label" for="filterDrug">
+          <span class="material-icons filter-label-icon">medication</span>
+          รายการยา
+        </label>
+        <input
+          type="text"
+          class="filter-input"
+          placeholder="ค้นหาชื่อยา..."
+          [(ngModel)]="filterDrug"
+          (input)="applyFilter()"
+          id="filterDrug"
+        />
+      </div>
+
+      <!-- ล้างตัวกรอง -->
+      <button class="btn-clear-filter" (click)="clearFilter()" title="ล้างตัวกรองทั้งหมด (คืนค่าวันนี้)">
+        <span class="material-icons">filter_alt_off</span>
+        ล้างตัวกรอง
+      </button>
+    </div>
+
+    <!-- Result info -->
+    <div class="filter-result-info">
+      <span class="material-icons" style="font-size:16px;">info</span>
+      แสดง {{ dataHis.filteredData.length }} รายการ จากทั้งหมด {{ listHis.length }} รายการ
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <table
+      mat-table
+      [dataSource]="dataHis"
+      #sortHis="matSort"
+      matSort
+      matSortActive=""
+      matSortDirection="asc"
+    >
+      <ng-container matColumnDef="BinID">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ตำแหน่ง</th>
+        <td mat-cell *matCellDef="let element">{{ element.BinID }}</td>
+      </ng-container>
+      <ng-container matColumnDef="DrugNm">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>รายการยา</th>
+        <td mat-cell *matCellDef="let element">{{ element.DrugNm }}</td>
+      </ng-container>
+      <ng-container matColumnDef="LotNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Lot. No</th>
+        <td mat-cell *matCellDef="let element">{{ element.LotNo }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Exp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Exp. Date</th>
+        <td mat-cell *matCellDef="let element">{{ element.Exp }}</td>
+      </ng-container>
+      <ng-container matColumnDef="In_Qty">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>จำนวน</th>
+        <td mat-cell *matCellDef="let element">{{ element.In_Qty }}</td>
+      </ng-container>
+      <ng-container matColumnDef="confirmDT">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>เวลาเติม</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.confirmDT | date : "yyyy-MM-dd HH:mm:ss" }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="Fullname">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ผู้เติมยา</th>
+        <td mat-cell *matCellDef="let element">{{ element.Fullname }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayHis; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayHis"></tr>
+
+      <!-- No data row -->
+      <tr class="mat-row no-data-row" *matNoDataRow>
+        <td class="mat-cell no-data-cell" colspan="7">
+          <span class="material-icons" style="font-size:36px; color:#94a3b8;">search_off</span>
+          <p>ไม่พบข้อมูลที่ตรงกับตัวกรอง</p>
+        </td>
+      </tr>
+    </table>
+    <mat-paginator
+      #paginHis="matPaginator"
+      [length]="10"
+      [pageSize]="10"
+      showFirstLastButtons
+    >
+    </mat-paginator>
+  </div>
+</div>

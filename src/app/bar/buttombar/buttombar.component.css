@@ -1,0 +1,104 @@
+.hospital-bottom-bar {
+  height: 64px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 100;
+}
+
+.bottom-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.nav-circle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 26px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-family: 'Prompt', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-btn-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.nav-circle-btn:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(2, 132, 199, 0.15);
+}
+
+.nav-circle-btn.home-btn {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.nav-circle-btn.home-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+}
+
+.nav-sound-toggle-btn {
+  position: absolute;
+  left: 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-sound-toggle-btn:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+}
+
+.kiosk-version-tag {
+  position: absolute;
+  right: 24px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  background: rgba(241, 245, 249, 0.85);
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+

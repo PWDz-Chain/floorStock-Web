@@ -1,0 +1,58 @@
+<div class="kiosk-center-stage">
+  <!-- Live Kiosk Status Bar -->
+  <div class="home-status-widget">
+    <div class="status-indicator">
+      <span class="status-pulse-dot"></span>
+      <span class="status-label">ตู้พร้อมใช้งาน • ONLINE</span>
+    </div>
+    <div class="clock-display">
+      <span class="clock-time">{{ currentTime }}</span>
+      <span class="clock-date">{{ currentDate }}</span>
+    </div>
+  </div>
+
+  <!-- Hospital Kiosk Header -->
+  <div class="hospital-kiosk-header">
+    <div class="hospital-badge">
+      SMART HOSPITAL FLOORSTOCK SYSTEM
+    </div>
+    <h1 class="hospital-kiosk-title">ระบบจัดการและจ่ายยา FloorStock</h1>
+    <p class="hospital-kiosk-subtitle">Smart FloorStock Medication Cabinet • กรุณาเลือกรายการที่ต้องการทำ</p>
+  </div>
+
+  <!-- Main Action Cards Grid -->
+  <div class="row w-100 justify-content-center g-4">
+    <!-- Card 1: รับยา -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="hospital-card" (click)="navigate('Dispen')">
+        <div class="hospital-card-icon-wrapper">
+          <img src="assets/img/delivery.gif" class="list" alt="รับยา" />
+        </div>
+        <h2 class="hospital-card-title">รับยา</h2>
+        <p class="hospital-card-desc">จ่ายยาตามใบสั่งแพทย์</p>
+      </div>
+    </div>
+
+    <!-- Card 2: ประวัติรับยา -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="hospital-card" (click)="navigate('History/Dispense')">
+        <div class="hospital-card-icon-wrapper">
+          <img src="assets/img/history.gif" class="list" alt="ประวัติรับยา" />
+        </div>
+        <h2 class="hospital-card-title">ประวัติรับยา</h2>
+        <p class="hospital-card-desc">ตรวจสอบประวัติการจ่ายยา</p>
+      </div>
+    </div>
+
+    <!-- Card 3: คลังยา -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="hospital-card" (click)="navigate('Refill')">
+        <div class="hospital-card-icon-wrapper">
+          <img src="assets/img/inventory.gif" class="list" alt="คลังยา" />
+        </div>
+        <h2 class="hospital-card-title">คลังยา</h2>
+        <p class="hospital-card-desc">จัดการและเติมสต็อกยา</p>
+      </div>
+    </div>
+  </div>
+</div>

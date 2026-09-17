@@ -1,0 +1,95 @@
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">กำลังประมวลผล...</span>
+  </div>
+</div>
+
+<div class="kiosk-center-stage">
+  <div class="scan-qr-card">
+    <div class="auth-header">
+      <div class="hospital-badge">
+        QR CODE REFILL SCANNER
+      </div>
+      <h2 class="auth-title">สแกน QR Code กล่องยา</h2>
+      <p class="auth-subtitle">หันรหัส QR บนกล่องยาเข้าหาตัวสแกนเพื่อระบุตำแหน่งช่องเติม</p>
+    </div>
+
+    <!-- Scan Animation Box -->
+    <div class="scan-visual-wrapper">
+      <img src="assets/img/qr-code.gif" class="scan-avatar" alt="สแกน QR" />
+    </div>
+
+    <!-- Input Bar -->
+    <div class="hospital-input-group mt-3">
+      <input
+        type="text"
+        class="hospital-input"
+        placeholder="แตะที่นี่แล้วสแกน QR Code กล่องยา..."
+        aria-label="qrcode"
+        #cardInput
+        (focus)="cardInput.select()"
+        (click)="cardInput.select()"
+        (blur)="keepFocus()"
+        (keyup.enter)="scanQRcode(cardInput.value); cardInput.value = ''"
+      />
+    </div>
+
+    <p class="auth-hint mt-3">
+      ระบบจะแสดงหมายเลขช่องยา (Bin ID) ที่ต้องนำยาไปเติมโดยอัตโนมัติ
+    </p>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="staticBackdrop"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-xl bottom-modal">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="center">
+          <div>
+            <p id="number" class="number green">{{ refillData.BinID }}</p>
+          </div>
+          <table class="table table-striped mt-4">
+            <thead>
+              <tr>
+                <th scope="col">Drug Name</th>
+                <th scope="col">Lot No</th>
+                <th scope="col">Exp Date</th>
+                <th scope="col">Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>{{ refillData.DrugNm }}</th>
+                <td>{{ refillData.LotNo }}</td>
+                <td>{{ refillData.Exp }}</td>
+                <td>{{ refillData.In_Qty }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="text-red">*กรุณาเติมยาก่อนกดยืนยัน</div>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+          (click)="cancelRefill()"
+        >
+          ยกเลิก
+        </button>
+        <button type="button" class="btn btn-primary" (click)="submitRefill()">
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

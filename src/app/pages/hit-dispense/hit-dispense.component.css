@@ -1,0 +1,353 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.dispen-wrapper {
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px 32px 12px;
+}
+
+/* ============================================
+   TOP PHARMACY DISPENSE HEADER CARD
+============================================ */
+
+.dispen-header-card {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Section 1: Left Date Badge */
+.header-section.section-date {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.hospital-info-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 8px 18px;
+}
+
+.info-icon-wrapper {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
+}
+
+.info-emoji {
+  font-size: 20px;
+}
+
+.info-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.info-value-highlight {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: 'Inter', 'Prompt', sans-serif;
+}
+
+/* Section 2: Center Station Branding */
+.header-section.section-station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.station-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid #bae6fd;
+  margin-bottom: 4px;
+}
+
+.live-dot {
+  color: #0284c7;
+  font-size: 10px;
+  animation: pulse-dot 1.5s infinite alternate;
+}
+
+@keyframes pulse-dot {
+  from { opacity: 0.4; }
+  to { opacity: 1; text-shadow: 0 0 8px #0284c7; }
+}
+
+.dispen-main-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 2px 0;
+}
+
+.dispen-main-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Section 3: Right User Profile */
+.header-section.section-user {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.user-badge-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 6px 14px 6px 16px;
+  max-width: 330px;
+  min-width: 0;
+}
+
+.user-avatar-circle {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.user-info-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.user-role-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #0284c7;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-name-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  display: inline-block;
+}
+
+.user-name-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ============================================
+   PRESCRIPTION TABLE CARD
+============================================ */
+
+.dispen-table-card {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+  padding: 8px 0 0 0;
+}
+
+.hospital-mat-table {
+  width: 100%;
+  background: #ffffff;
+}
+
+.hospital-mat-table th.mat-header-cell {
+  background: #f8fafc;
+  color: #1e293b;
+  font-family: 'Prompt', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 16px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.hospital-mat-table td.mat-cell {
+  font-family: 'Prompt', sans-serif;
+  font-size: 1.05rem;
+  padding: 14px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.prescription-row {
+  transition: all 0.2s ease;
+}
+
+.prescription-row:hover {
+  background-color: #f0f9ff !important;
+}
+
+/* Badges on Table Columns */
+.patient-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+.code-hn {
+  font-family: 'Inter', monospace;
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 1.05rem;
+  background: #f8fafc;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.badge-bed {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+}
+
+.receiver-name {
+  font-weight: 600;
+  color: #0369a1;
+}
+
+.detail-drug-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+
+.detail-dose-qty {
+  font-weight: 700;
+  color: #0284c7;
+  font-size: 1.15rem;
+  background: #f0f9ff;
+  padding: 2px 10px;
+  border-radius: 8px;
+}
+
+.detail-unit {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.dispense-time-badge {
+  font-family: 'Inter', 'Prompt', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #059669;
+  background: #f0fdf4;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+/* Empty State */
+.empty-queue-state {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.empty-icon-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+}
+
+.empty-emoji {
+  font-size: 44px;
+}
+
+.empty-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.empty-desc {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.hospital-paginator {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  font-family: 'Prompt', sans-serif;
+}
+

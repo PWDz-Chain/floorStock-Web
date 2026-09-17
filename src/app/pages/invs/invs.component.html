@@ -1,0 +1,402 @@
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+<div class="kiosk-stage-invs">
+  <!-- Sub Header with Stats & Filter Chips -->
+  <div class="invs-top-bar">
+    <div class="invs-title-group">
+      <div>
+        <h2 class="invs-title">ผังตำแหน่งช่องยา FloorStock</h2>
+        <p class="invs-subtitle">แตะช่องยาเพื่อดูรายละเอียดหรือเพิ่ม Lot ใหม่</p>
+      </div>
+    </div>
+
+    <!-- Quick Stock Filter Chips -->
+    <div class="invs-filter-chips">
+      <button
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'all'"
+        (click)="setFilter('all')"
+      >
+        ทั้งหมด <span class="chip-count">({{ stats.total }})</span>
+      </button>
+
+      <button
+        type="button"
+        class="filter-chip chip-stock"
+        [class.active]="activeFilter === 'instock'"
+        (click)="setFilter('instock')"
+      >
+        มีสต็อก <span class="chip-count">({{ stats.withStock }})</span>
+      </button>
+
+      <button
+        type="button"
+        class="filter-chip chip-full"
+        [class.active]="activeFilter === 'full'"
+        (click)="setFilter('full')"
+      >
+        สต็อกเต็ม <span class="chip-count">({{ stats.full }})</span>
+      </button>
+
+      <button
+        type="button"
+        class="filter-chip chip-empty"
+        [class.active]="activeFilter === 'empty'"
+        (click)="setFilter('empty')"
+      >
+        ช่องว่าง <span class="chip-count">({{ stats.empty }})</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Inventory Matrix Grid with Shelf Rows (1 Line Per Group) -->
+  <div class="inventory-container">
+    <div class="inventory-shelf-row" *ngFor="let shelf of groupedInventory">
+      <div
+        class="inventory-card pointer"
+        [class.dimmed]="!isItemMatchingFilter(item)"
+        [class.highlighted]="activeFilter !== 'all' && isItemMatchingFilter(item)"
+        *ngFor="let item of shelf.items"
+        (click)="fecthLocationInv(item)"
+      >
+        <div class="bin-id">{{ item.binID }}</div>
+
+        <div class="drug-name" [title]="item.DrugNm || 'ช่องว่าง'">
+          {{ item.DrugNm || '-' }}
+        </div>
+
+        <div class="card-progress-bar">
+          <div
+            class="card-progress-fill"
+            [style.width]="getProgressWidth(item.Total_In_Qty, item.Max_Qty)"
+          ></div>
+          <div class="card-progress-text" *ngIf="item.DrugNm && item.DrugNm.length > 0">
+            {{ item.Total_In_Qty }}/{{ item.Max_Qty }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Search / Scan Bar -->
+  <div class="inventory-search-dock">
+    <div class="hospital-input-group">
+      <input
+        #searchInput
+        type="text"
+        class="hospital-input text-center"
+        placeholder="แตะที่นี่เพื่อสแกน QR / Barcode กล่องยา..."
+        [(ngModel)]="searchDrugCd"
+        (focus)="searchInput.select()"
+        (click)="searchInput.select()"
+        (blur)="keepFocus()"
+        (keyup.enter)="onSearchDrugCd()"
+      />
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="matchingInventory.length > 0"
+  class="modal fade"
+  id="selectBinModal"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="selectBinModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-xl bottom-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="selectBinModalLabel">เลือกตำแหน่ง</h2>
+        <button
+          type="button"
+          class="close"
+          aria-label="Close"
+          data-dismiss="modal"
+          (click)="closeSelectBinModal()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group">
+          <button
+            type="button"
+            class="list-group-item list-group-item-action"
+            *ngFor="let item of matchingInventory; let i = index"
+            (click)="selectBinFromSearch(item)"
+            [ngClass]="{
+              'row-even': i % 2 === 0,
+              'row-odd': i % 2 !== 0
+            }"
+          >
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="font-weight-bold">{{ item.binID }} </span>
+              <span class="font-weight-bold">Pack : {{ item.pack }}</span>
+
+              <span class="font-weight-bold">
+                {{
+                  item.Max_Qty
+                    ? (item.Total_In_Qty / item.Max_Qty | percent : "1.0-0")
+                    : "0%"
+                }}
+              </span>
+            </div>
+            <div class="modal-progress-bar mt-2">
+              <div
+                class="modal-progress-fill"
+                [style.width]="
+                  getProgressWidth(item.Total_In_Qty, item.Max_Qty)
+                "
+              ></div>
+              <div class="modal-progress-label">
+                {{ item.Total_In_Qty }}/{{ item.Max_Qty }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  *ngIf="
+    selectItem && (userInfo.Position === '00' || userInfo.Position === '01')
+  "
+  class="modal fade"
+  id="detailModal"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="detailModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-xl hospital-modal-dialog">
+    <div class="modal-content hospital-modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header hospital-modal-header">
+        <div class="modal-patient-info">
+          <div class="patient-header-top">
+            <span class="badge-ward">FLOORSTOCK REFILL</span>
+            <span class="badge-rx">Bin {{ selectItem.binID }}</span>
+            <span class="code-hn">รหัสยา: {{ selectItem.DrugCd }}</span>
+            <span class="badge-bed">ความจุ: {{ selectItem.Total_In_Qty || 0 }} / {{ selectItem.Max_Qty }} กล่อง</span>
+          </div>
+          <h2 class="modal-patient-title">
+            ช่อง <strong>Bin {{ selectItem.binID }}</strong>: {{ selectItem.DrugNm || selectItem.DrugCd }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          class="hospital-modal-close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closeDetailModal()"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="modal-body hospital-modal-body">
+        
+        <!-- Top Row: Existing Lots Summary -->
+        <div class="existing-lots-card mb-3" *ngIf="locationInv.length > 0">
+          <div class="mb-2">
+            <span class="section-badge-title">📦 รายการ Lot ปัจจุบันในช่อง (แตะแถวเพื่อเลือก Lot)</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0 hospital-mini-table">
+              <thead>
+                <tr>
+                  <th>Lot No</th>
+                  <th>Exp Date</th>
+                  <th class="text-center">คงเหลือ</th>
+                  <th class="text-center">การเลือก</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let order of locationInv"
+                  class="pointer"
+                  (click)="prefillNewLot(order)"
+                >
+                  <td class="font-weight-bold text-primary">{{ order.LotNo }}</td>
+                  <td>{{ order.Exp ? order.Exp.slice(0, 10) : '-' }}</td>
+                  <td class="text-center"><span class="badge-stock-qty">{{ order.In_Qty }} กล่อง</span></td>
+                  <td class="text-center"><button type="button" class="btn-select-lot">เลือกใช้ Lot นี้</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Touchscreen Refill Form -->
+        <div class="touch-refill-form-card">
+          <div class="refill-form-top">
+            <div class="form-title-badge">⚡ กรอกข้อมูลเพื่อเติมยาเข้าตู้</div>
+          </div>
+
+          <!-- Quantity Stepper & Presets -->
+          <div class="form-field-touch-group">
+            <label class="touch-field-label">
+              <span>จำนวนยาที่ต้องการเติม (กล่อง)</span>
+              <span class="label-hint">แตะเพื่อพิมพ์ หรือกดปุ่มลัดด้านล่าง</span>
+            </label>
+            <div class="qty-stepper-touch">
+              <button type="button" class="btn-stepper minus" (click)="adjustQty(-1)">−</button>
+              <input
+                type="text"
+                class="touch-input-qty"
+                [class.active-target]="activeInputTarget === 'newInQty'"
+                [value]="newLotInput.In_Qty"
+                (click)="setInputTarget('newInQty')"
+                readonly
+              />
+              <button type="button" class="btn-stepper plus" (click)="adjustQty(1)">+</button>
+              <div class="qty-preset-group">
+                <button type="button" class="btn-preset" (click)="setPresetQty(1)">+1</button>
+                <button type="button" class="btn-preset" (click)="setPresetQty(2)">+2</button>
+                <button type="button" class="btn-preset" (click)="setPresetQty(4)">+4</button>
+                <button type="button" class="btn-preset fill-max" (click)="setFullQty()">เต็มราง</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lot No & Exp Date Dual Inputs -->
+          <div class="form-row-touch">
+            <div class="form-field-touch-group">
+              <label class="touch-field-label">เลข Lot No</label>
+              <input
+                type="text"
+                class="touch-form-input"
+                [class.active-target]="activeInputTarget === 'newLotNo'"
+                [(ngModel)]="newLotInput.LotNo"
+                (click)="setInputTarget('newLotNo')"
+                (focus)="setInputTarget('newLotNo')"
+                placeholder="แตะเพื่อพิมพ์ Lot No"
+              />
+            </div>
+            <div class="form-field-touch-group">
+              <label class="touch-field-label">วันหมดอายุ (วว/ดด/ปปปป)</label>
+              <input
+                type="text"
+                class="touch-form-input touch-date-single-input"
+                [class.active-target]="activeInputTarget === 'newExp'"
+                [value]="expDisplay"
+                (click)="setInputTarget('newExp')"
+                (focus)="setInputTarget('newExp')"
+                (input)="onExpInputChange($event)"
+                placeholder="วว/ดด/ปปปป (เช่น 31/12/2028)"
+              />
+              <div class="thai-date-badge mt-2" *ngIf="expDisplay && expDisplay.length >= 8">
+                📅 <strong>{{ getThaiFormattedExp() }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="modal-form-actions-row mt-3">
+            <button
+              type="button"
+              class="btn-hospital-secondary mr-2"
+              (click)="resetNewLotInput()"
+              [disabled]="isSavingNewLot || isLoading"
+            >
+              🧹 ล้างข้อมูล
+            </button>
+
+            <button
+              type="button"
+              class="btn-dispense-all-large"
+              (click)="addNewLotEntry()"
+              [disabled]="isSavingNewLot || isLoading"
+            >
+              {{ isSavingNewLot ? "กำลังบันทึก..." : "⚡ บันทึกการเติมยา" }}
+            </button>
+          </div>
+        </div>
+
+        <!-- ⌨️ ON-SCREEN TOUCH KEYBOARD & NUMPAD COMPONENT -->
+        <div class="virtual-keyboard-section mt-3">
+          <div class="vk-header-bar">
+            <div class="vk-target-indicator">
+              <span class="vk-indicator-dot"></span>
+              กำลังพิมพ์: 
+              <strong>
+                {{ activeInputTarget === 'newInQty' ? 'จำนวนยาที่เติม (Qty)' :
+                   activeInputTarget === 'newLotNo' ? 'เลข Lot No' : 'วันหมดอายุ (วว/ดด/ปปปป)' }}
+              </strong>
+            </div>
+
+            <div class="vk-mode-switchers">
+              <button
+                type="button"
+                class="btn-vk-toggle"
+                [class.active]="keyboardMode === 'alpha'"
+                (click)="setKeyboardMode('alpha')"
+              >
+                🔤 แป้นตัวอักษร
+              </button>
+              <button
+                type="button"
+                class="btn-vk-toggle"
+                [class.active]="keyboardMode === 'numeric'"
+                (click)="setKeyboardMode('numeric')"
+              >
+                🔢 แป้นตัวเลข
+              </button>
+            </div>
+          </div>
+
+          <!-- ALPHANUMERIC KEYBOARD -->
+          <div class="vk-keyboard-body" *ngIf="keyboardMode === 'alpha'">
+            <div class="vk-row">
+              <button type="button" class="vk-key num" *ngFor="let k of ['1','2','3','4','5','6','7','8','9','0']" (click)="onKeyTouch(k)">{{ k }}</button>
+            </div>
+            <div class="vk-row">
+              <button type="button" class="vk-key" *ngFor="let k of ['Q','W','E','R','T','Y','U','I','O','P']" (click)="onKeyTouch(k)">{{ isCaps ? k : k.toLowerCase() }}</button>
+            </div>
+            <div class="vk-row">
+              <button type="button" class="vk-key" *ngFor="let k of ['A','S','D','F','G','H','J','K','L']" (click)="onKeyTouch(k)">{{ isCaps ? k : k.toLowerCase() }}</button>
+              <button type="button" class="vk-key special-pipe" (click)="onKeyTouch('-')">-</button>
+            </div>
+            <div class="vk-row">
+              <button type="button" class="vk-key vk-caps" [class.caps-on]="isCaps" (click)="toggleCaps()">⇧ CAPS</button>
+              <button type="button" class="vk-key" *ngFor="let k of ['Z','X','C','V','B','N','M','.','/']" (click)="onKeyTouch(k)">{{ isCaps ? k : k.toLowerCase() }}</button>
+              <button type="button" class="vk-key vk-backspace" (click)="onKeyBackspace()">⌫ ลบ</button>
+            </div>
+            <div class="vk-row">
+              <button type="button" class="vk-key vk-num-toggle" (click)="setKeyboardMode('numeric')">123 #</button>
+              <button type="button" class="vk-key vk-clear" (click)="onKeyClear()">🧹 ล้าง</button>
+            </div>
+          </div>
+
+          <!-- NUMPAD KEYBOARD -->
+          <div class="vk-numpad-body" *ngIf="keyboardMode === 'numeric'">
+            <div class="numpad-grid">
+              <button type="button" class="vk-key np" *ngFor="let n of ['7','8','9','4','5','6','1','2','3']" (click)="onKeyTouch(n)">{{ n }}</button>
+              <button type="button" class="vk-key np" (click)="onKeyTouch('0')">0</button>
+              <button type="button" class="vk-key np" (click)="onKeyTouch('-')">-</button>
+              <button type="button" class="vk-key np" (click)="onKeyTouch('.')">.</button>
+            </div>
+
+            <div class="numpad-side-actions">
+              <button type="button" class="vk-key np-act vk-backspace" (click)="onKeyBackspace()">⌫ ลบ</button>
+              <button type="button" class="vk-key np-act vk-clear" (click)="onKeyClear()">🧹 ล้าง</button>
+              <button type="button" class="vk-key np-act vk-abc-toggle" (click)="setKeyboardMode('alpha')">🔤 ABC</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

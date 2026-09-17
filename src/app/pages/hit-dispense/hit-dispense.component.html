@@ -1,0 +1,151 @@
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">กำลังประมวลผล...</span>
+  </div>
+</div>
+
+<div class="dispen-wrapper" *ngIf="userInfo">
+  <!-- Top Pharmacy Dispense History Header Card (3 Sections) -->
+  <div class="dispen-header-card">
+    <!-- Section 1 (Left): Operation Date Badge -->
+    <div class="header-section section-date">
+      <div class="hospital-info-box">
+        <div class="info-icon-wrapper">
+          <span class="info-emoji">📅</span>
+        </div>
+        <div class="info-text-group">
+          <span class="info-label">วันที่ปฏิบัติงาน</span>
+          <span class="info-value-highlight">{{ selectedDate | date : 'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 (Center): Station Branding & Description -->
+    <div class="header-section section-station">
+      <div class="station-badge">
+        <span class="live-dot">●</span> DISPENSE LOG HISTORY
+      </div>
+      <h2 class="dispen-main-title">ประวัติการจ่ายยา</h2>
+      <p class="dispen-main-subtitle">
+        รายการประวัติการจ่ายยาตามใบสั่งแพทย์
+      </p>
+    </div>
+
+    <!-- Section 3 (Right): Staff Profile & Logout -->
+    <div class="header-section section-user">
+      <div *ngIf="userInfo.Fullname" class="user-badge-card" [title]="userInfo.Fullname">
+        <div class="user-avatar-circle">
+          <span>👤</span>
+        </div>
+        <div class="user-info-text">
+          <span class="user-role-label">เจ้าหน้าที่ผู้ปฏิบัติงาน</span>
+          <span class="user-name-label" [title]="userInfo.Fullname">{{ userInfo.Fullname }}</span>
+        </div>
+        <button type="button" class="btn-hospital-danger ml-2" (click)="logOut()">
+          ออกจากระบบ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Table Card -->
+  <div class="dispen-table-card">
+    <div *ngIf="listHis.length > 0; else noHis">
+      <table
+        mat-table
+        [dataSource]="dataHis"
+        #sortHis="matSort"
+        matSort
+        class="hospital-mat-table"
+      >
+        <!-- ผู้ป่วย -->
+        <ng-container matColumnDef="PatientName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ชื่อ-สกุล ผู้ป่วย</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="patient-name">{{ element.PatientName }}</span>
+          </td>
+        </ng-container>
+
+        <!-- HN -->
+        <ng-container matColumnDef="Hn">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>HN</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="code-hn">{{ element.Hn }}</span>
+          </td>
+        </ng-container>
+
+        <!-- เตียง -->
+        <ng-container matColumnDef="BedNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>เตียง</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="badge-bed">เตียง {{ element.BedNo || '-' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- ผู้รับยา -->
+        <ng-container matColumnDef="Fullname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ผู้รับยา</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="receiver-name">{{ element.Fullname || '-' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- รายการยา -->
+        <ng-container matColumnDef="DrugName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>รายการยา</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="detail-drug-name">{{ element.DrugName }}</span>
+          </td>
+        </ng-container>
+
+        <!-- จำนวน -->
+        <ng-container matColumnDef="DispensedDose">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>จำนวนจ่าย</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="detail-dose-qty">{{ element.DispensedDose }}</span>
+          </td>
+        </ng-container>
+
+        <!-- หน่วย -->
+        <ng-container matColumnDef="DispensedUnit">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>หน่วย</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="detail-unit">{{ element.DispensedUnit }}</span>
+          </td>
+        </ng-container>
+
+        <!-- เวลารับยา -->
+        <ng-container matColumnDef="DispenseDatetime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>เวลารับยา</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="dispense-time-badge">
+              {{ element.DispenseDatetime | date : "dd/MM/yyyy HH:mm:ss" : "UTC" }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayHis; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayHis" class="prescription-row"></tr>
+      </table>
+
+      <mat-paginator
+        #paginHis="matPaginator"
+        [length]="listHis.length"
+        [pageSize]="10"
+        showFirstLastButtons
+        class="hospital-paginator"
+      >
+      </mat-paginator>
+    </div>
+
+    <ng-template #noHis>
+      <div class="empty-queue-state">
+        <div class="empty-icon-circle">
+          <span class="empty-emoji">📜</span>
+        </div>
+        <h3 class="empty-title">ไม่พบประวัติการรับยา</h3>
+        <p class="empty-desc">ไม่มีรายการประวัติการจ่ายยาในวันที่เลือก</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<div *ngIf="isLoading" class="spinner-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">กำลังตรวจสอบข้อมูล...</span>
+  </div>
+</div>
+
+<div class="kiosk-center-stage">
+  <div class="login-auth-card">
+    <div class="auth-header">
+      <div class="hospital-badge" *ngIf="jobType">
+        เข้าสู่ระบบ: {{ jobType }}
+      </div>
+      <h2 class="auth-title">ยืนยันตัวตนเจ้าหน้าที่</h2>
+      <p class="auth-subtitle">Staff Authentication • สแกนบัตรหรือแตะเพื่อระบุตัวตน</p>
+    </div>
+
+    <!-- Scan Animation Box with Hospital Glow -->
+    <div class="scan-visual-wrapper">
+      <img src="assets/img/face.gif" class="scan-avatar" alt="สแกนใบหน้า/บัตร" />
+    </div>
+
+    <!-- Clean Hospital Input Bar -->
+    <div class="hospital-input-group mt-3">
+      <input
+        type="text"
+        class="hospital-input"
+        placeholder="แตะที่นี่แล้วสแกนบัตรเจ้าหน้าที่..."
+        aria-label="Username"
+        #cardInput
+        (focus)="cardInput.select()"
+        (click)="cardInput.select()"
+        (blur)="keepFocus()"
+        (keyup.enter)="scanUser(cardInput.value); cardInput.value = ''"
+      />
+    </div>
+
+    <p class="auth-hint mt-3">
+      ทาบบัตร RFID หรือสแกน Barcode ประจำตัวที่เครื่องอ่าน
+    </p>
+  </div>
+</div>

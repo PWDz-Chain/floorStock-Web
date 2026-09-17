@@ -1,0 +1,46 @@
+<div class="kiosk-center-stage">
+  <!-- Header -->
+  <div class="hospital-kiosk-header">
+    <div class="hospital-badge">
+      FLOORSTOCK REFILL & INVENTORY
+    </div>
+    <h1 class="hospital-kiosk-title">ระบบจัดการและเติมยา FloorStock</h1>
+    <p class="hospital-kiosk-subtitle">กรุณาเลือกวิธีการเติมยาหรือดูประวัติ</p>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="row w-100 justify-content-center g-4">
+    <!-- Option 1: สแกน QR -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="hospital-card" routerLink="/Refill/ScanQr">
+        <div class="hospital-card-icon-wrapper">
+          <img src="assets/img/qr-code.gif" class="list" alt="สแกน QR" />
+        </div>
+        <h2 class="hospital-card-title">สแกน QR</h2>
+        <p class="hospital-card-desc">สแกน QR Code จากกล่องยา</p>
+      </div>
+    </div>
+
+    <!-- Option 2: เลือกช่องยา -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="hospital-card" routerLink="/Invs">
+        <div class="hospital-card-icon-wrapper">
+          <img src="assets/img/inventory.gif" class="list" alt="เลือกช่องยา" />
+        </div>
+        <h2 class="hospital-card-title">เลือกช่องยา</h2>
+        <p class="hospital-card-desc">เลือกช่องยาในตู้ FloorStock โดยตรง</p>
+      </div>
+    </div>
+
+    <!-- Option 3: ประวัติเติมยา -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="hospital-card" routerLink="/Refill/Hitstory">
+        <div class="hospital-card-icon-wrapper">
+          <img src="assets/img/history.gif" class="list" alt="ประวัติเติมยา" />
+        </div>
+        <h2 class="hospital-card-title">ประวัติเติมยา</h2>
+        <p class="hospital-card-desc">ตรวจสอบประวัติการเติมสต็อก</p>
+      </div>
+    </div>
+  </div>
+</div>

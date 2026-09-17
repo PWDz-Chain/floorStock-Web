@@ -1,0 +1,29 @@
+<div class="hospital-bottom-bar">
+  <!-- Left Side: Sound Feedback Toggle Button -->
+  <button
+    type="button"
+    class="nav-sound-toggle-btn"
+    (click)="toggleSound()"
+    [title]="soundEnabled ? 'ปิดเสียงแจ้งเตือน' : 'เปิดเสียงแจ้งเตือน'"
+  >
+    <span class="sound-icon-indicator">{{ soundEnabled ? '🔊 เสียงเปิด' : '🔇 เสียงปิด' }}</span>
+  </button>
+
+  <!-- Center: Action Buttons -->
+  <div class="bottom-nav-container">
+    <button type="button" class="nav-circle-btn" (click)="goBack()" title="ย้อนกลับ">
+      <img src="assets/img/left-arrow.png" class="nav-btn-icon" alt="ย้อนกลับ" />
+      <span class="btn-text">ย้อนกลับ</span>
+    </button>
+    
+    <button type="button" class="nav-circle-btn home-btn" routerLink="/" (click)="onHomeClick()" title="หน้าหลัก">
+      <img src="assets/img/home.png" class="nav-btn-icon" alt="หน้าหลัก" />
+      <span class="btn-text">หน้าหลัก</span>
+    </button>
+  </div>
+
+  <!-- Right Side: Version Badge -->
+  <div class="kiosk-version-tag" title="Build: {{ buildTime }}">
+    {{ versionTag }}
+  </div>
+</div>
