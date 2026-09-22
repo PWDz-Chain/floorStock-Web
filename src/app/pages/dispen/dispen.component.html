@@ -309,15 +309,28 @@
             ผู้ป่วย: <strong>{{ selectOrder.PatientName }}</strong>
           </h2>
         </div>
-        <button
-          type="button"
-          class="hospital-modal-close"
-          data-dismiss="modal"
-          aria-label="Close"
-          (click)="fetchOrder()"
-        >
-          &times;
-        </button>
+        <div class="modal-header-actions">
+          <button
+            *ngIf="isOrderScan"
+            type="button"
+            class="btn-modal-exit-header"
+            (click)="handleCloseModal()"
+            title="ออกและกลับสู่หน้าหลัก"
+          >
+            <span class="exit-icon">🚪</span>
+            <span>ออก / หน้าหลัก</span>
+          </button>
+          <button
+            type="button"
+            class="hospital-modal-close"
+            data-dismiss="modal"
+            aria-label="Close"
+            (click)="handleCloseModal()"
+            title="ปิดหน้าต่าง"
+          >
+            &times;
+          </button>
+        </div>
       </div>
 
       <!-- Modal Body -->
@@ -463,6 +476,18 @@
             <p class="empty-desc">ไม่พบข้อมูลยาในใบสั่งยานี้</p>
           </div>
         </ng-template>
+      </div>
+
+      <!-- Modal Footer Action Bar -->
+      <div class="modal-footer hospital-modal-footer" *ngIf="isOrderScan">
+        <button
+          type="button"
+          class="btn-hospital-exit"
+          (click)="handleCloseModal()"
+        >
+          <span class="exit-icon">🚪</span>
+          <span>ออก / กลับสู่หน้าหลัก</span>
+        </button>
       </div>
     </div>
   </div>

@@ -82,6 +82,15 @@ export class DispenComponent implements AfterViewInit {
     picker: new FormControl(new Date()),
   });
 
+  private isNavigatingHome: boolean = false;
+
+  get isOrderScan(): boolean {
+    return (
+      this.userInfo?.isKiosk === true ||
+      sessionStorage.getItem('isOrderScan') === 'true'
+    );
+  }
+
   constructor(
     private service: AppService,
     private http: HttpClient,
@@ -93,6 +102,7 @@ export class DispenComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.isNavigatingHome = false;
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
     console.log(this.userInfo);
     if (this.userInfo && this.userInfo.UserId) {
@@ -125,6 +135,18 @@ export class DispenComponent implements AfterViewInit {
           }
         }
       });
+
+      // ดักจับเมื่อ modal ปิดลง: หากเป็นการสแกนด้วย order ให้กลับสู่หน้า home เลย ไม่ต้องกดอีก
+      const _window: any = window;
+      if (_window.$) {
+        _window.$('#detailModal').off('hidden.bs.modal').on('hidden.bs.modal', () => {
+          if (this.isOrderScan && !this.isNavigatingHome) {
+            this.isNavigatingHome = true;
+            sessionStorage.removeItem('isOrderScan');
+            this.logOut();
+          }
+        });
+      }
     } else {
       this.router.navigate(['/']);
     }
@@ -360,13 +382,35 @@ export class DispenComponent implements AfterViewInit {
                 _window.$(`#detailModal`).modal('show');
               }, 50);
             } else {
+              // จ่ายยาครบทุกรายการแล้ว
               this.listDetail = [];
-              this.fetchOrder(undefined, false);
               this.isLoading = false;
               this.cdr.detectChanges();
-              setTimeout(() => {
+              if (_window.$) {
                 _window.$(`#detailModal`).modal('hide');
-              }, 100);
+                _window.$('.modal-backdrop').remove();
+                _window.$('body').removeClass('modal-open');
+              }
+
+              if (this.isOrderScan) {
+                // สแกนด้วย order (Kiosk): แจ้งเตือนเสร็จสิ้น แล้วกลับสู่หน้า home เลย ไม่ต้องกดอีก
+                if (!this.isNavigatingHome) {
+                  this.isNavigatingHome = true;
+                  this.service.playSound('success');
+                  this.service.alertTime(
+                    'success',
+                    'รับยาเสร็จสิ้น',
+                    'ดำเนินการจ่ายยาครบทุกรายการแล้ว กำลังกลับสู่หน้าหลัก...'
+                  );
+                  sessionStorage.removeItem('isOrderScan');
+                  setTimeout(() => {
+                    this.logOut();
+                  }, 1200);
+                }
+              } else {
+                // Flow เดิมของ User (เจ้าหน้าที่): ดึงข้อมูลรายการรอจ่ายใหม่ อยู่หน้าเดิม ทำงานต่อได้ตามปกติ
+                this.fetchOrder(undefined, false);
+              }
             }
           } else {
             this.isLoading = false;
@@ -707,7 +751,7 @@ export class DispenComponent implements AfterViewInit {
       PrescriptionNo: this.selectOrder.PrescriptionNo,
       SeqNo: '',
       check: 1,
-      userPrint: this.userInfo.UserId,
+      userPrint: this.userInfo?.UserId || 'KIOSK',
     };
 
     if (window.Android && window.Android.receiveJson) {
@@ -725,7 +769,7 @@ export class DispenComponent implements AfterViewInit {
         .post('itemDispen', {
           prescriptionNo: this.selectOrder.PrescriptionNo,
           SeqNo: item.SeqNo,
-          UserId: this.userInfo.UserId,
+          UserId: this.userInfo?.UserId || 'KIOSK',
         })
         .subscribe({
           next: (response) => {
@@ -787,7 +831,37 @@ export class DispenComponent implements AfterViewInit {
       });
   }
 
+  handleCloseModal(): void {
+    const _window: any = window;
+    if (_window.$) {
+      _window.$('#detailModal').modal('hide');
+      _window.$('.modal-backdrop').remove();
+      _window.$('body').removeClass('modal-open');
+    }
+
+    if (this.isOrderScan) {
+      if (!this.isNavigatingHome) {
+        this.isNavigatingHome = true;
+        sessionStorage.removeItem('isOrderScan');
+        this.logOut();
+      }
+    } else {
+      // Flow เดิมของ User (เจ้าหน้าที่): ปิด modal แล้วดึงข้อมูลใหม่ อยู่หน้าเดิมทำงานต่อ
+      this.fetchOrder();
+    }
+  }
+
+  closeModalAndGoHome(): void {
+    this.handleCloseModal();
+  }
+
   logOut(): void {
+    const _window: any = window;
+    if (_window.$) {
+      _window.$('#detailModal').modal('hide');
+      _window.$('.modal-backdrop').remove();
+      _window.$('body').removeClass('modal-open');
+    }
     this.service.playSound('click');
     const data = {
       PrescriptionNo: null,
@@ -804,6 +878,8 @@ export class DispenComponent implements AfterViewInit {
     }
 
     sessionStorage.removeItem('userInfo');
+    sessionStorage.removeItem('autoOpenOrder');
+    sessionStorage.removeItem('isOrderScan');
     this.router.navigate(['/']);
   }
 

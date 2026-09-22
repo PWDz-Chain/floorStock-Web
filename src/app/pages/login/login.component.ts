@@ -91,6 +91,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       next: (response) => {
         if (response && response.UserId) {
           this.isLoading = false;
+          sessionStorage.removeItem('isOrderScan');
           sessionStorage.setItem('userInfo', JSON.stringify(response));
           this.service.playSound('success');
           this.router.navigate([`/${this.path}`]);
@@ -136,6 +137,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
             };
             sessionStorage.setItem('userInfo', JSON.stringify(kioskUser));
             sessionStorage.setItem('autoOpenOrder', JSON.stringify(order));
+            sessionStorage.setItem('isOrderScan', 'true');
 
             this.service.playSound('success');
             this.router.navigate(['/Dispen']);
