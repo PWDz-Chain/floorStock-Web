@@ -89,40 +89,83 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
     this.service.post('login', { UserId: rawData }).subscribe({
       next: (response) => {
-        this.isLoading = false;
-        sessionStorage.setItem('userInfo', JSON.stringify(response));
-        const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-
-        if (userInfo && userInfo.UserId) {
+        if (response && response.UserId) {
+          this.isLoading = false;
+          sessionStorage.setItem('userInfo', JSON.stringify(response));
           this.service.playSound('success');
           this.router.navigate([`/${this.path}`]);
         } else {
-          this.service.alert('error', 'ไม่พบข้อมูลผู้ใช้', 'กรุณาลองใหม่อีกครั้ง').then(() => {
-            this.resetAndFocusInput();
-          });
+          // ไม่พบข้อมูล User ถ้าเป็นหน้า Dispen ให้ลองเช็คว่าเป็น QR_Order หรือไม่
+          this.checkIfOrder(rawData);
         }
       },
       error: (error: HttpErrorResponse) => {
         console.error(error);
-        this.isLoading = false;
-        if (error.status === 404) {
-          this.service.alert(
-            'error',
-            'ไม่พบข้อมูลผู้ใช้',
-            'กรุณาลองใหม่อีกครั้ง'
-          ).then(() => {
-            this.resetAndFocusInput();
-          });
+        if (this.path === 'Dispen') {
+          // ถ้า login error หรือ 404 ให้ลองค้นหาจาก QR_Order
+          this.checkIfOrder(rawData);
         } else {
-          this.service.alert(
-            'error',
-            'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
-            'กรุณาลองใหม่อีกครั้ง'
-          ).then(() => {
-            this.resetAndFocusInput();
-          });
+          this.isLoading = false;
+          if (error.status === 404) {
+            this.service.alert('error', 'ไม่พบข้อมูลผู้ใช้', 'กรุณาลองใหม่อีกครั้ง').then(() => {
+              this.resetAndFocusInput();
+            });
+          } else {
+            this.service.alert('error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'กรุณาลองใหม่อีกครั้ง').then(() => {
+              this.resetAndFocusInput();
+            });
+          }
         }
       },
     });
+  }
+
+  private checkIfOrder(rawData: string): void {
+    if (this.path === 'Dispen') {
+      this.service.post('fetchOrderByQR', { qrCode: rawData }).subscribe({
+        next: (order) => {
+          this.isLoading = false;
+          if (order && order.PrescriptionNo) {
+            // พบใบสั่งยาจาก QR_Order หรือ PrescriptionNo
+            const kioskUser = {
+              UserId: 'KIOSK',
+              Fullname: 'ระบบตู้ยา (Kiosk)',
+              wardcode: order.WardCd || '04',
+              warddesc: order.WardName || 'หอผู้ป่วย',
+              isKiosk: true,
+            };
+            sessionStorage.setItem('userInfo', JSON.stringify(kioskUser));
+            sessionStorage.setItem('autoOpenOrder', JSON.stringify(order));
+
+            this.service.playSound('success');
+            this.router.navigate(['/Dispen']);
+          } else {
+            this.showNotFoundAlert();
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error(err);
+          this.isLoading = false;
+          this.showNotFoundAlert();
+        },
+      });
+    } else {
+      this.isLoading = false;
+      this.service.alert('error', 'ไม่พบข้อมูลผู้ใช้', 'กรุณาลองใหม่อีกครั้ง').then(() => {
+        this.resetAndFocusInput();
+      });
+    }
+  }
+
+  private showNotFoundAlert(): void {
+    this.service
+      .alert(
+        'error',
+        'ไม่พบข้อมูลผู้ใช้ หรือ ใบสั่งยา',
+        'กรุณาตรวจสอบรหัสบัตร หรือ QR Code ใบสั่งยาอีกครั้ง'
+      )
+      .then(() => {
+        this.resetAndFocusInput();
+      });
   }
 }

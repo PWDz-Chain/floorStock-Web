@@ -10,8 +10,10 @@
       <div class="hospital-badge" *ngIf="jobType">
         เข้าสู่ระบบ: {{ jobType }}
       </div>
-      <h2 class="auth-title">ยืนยันตัวตนเจ้าหน้าที่</h2>
-      <p class="auth-subtitle">Staff Authentication • สแกนบัตรหรือแตะเพื่อระบุตัวตน</p>
+      <h2 class="auth-title">{{ path === 'Dispen' ? 'เข้าสู่ระบบรับยา / สแกนใบสั่งยา' : 'ยืนยันตัวตนเจ้าหน้าที่' }}</h2>
+      <p class="auth-subtitle">
+        {{ path === 'Dispen' ? 'สแกนบัตรเจ้าหน้าที่ เพื่อเข้าสู่ระบบ หรือ สแกน QR Code ใบสั่งยา เพื่อดูรายการยา' : 'Staff Authentication • สแกนบัตรหรือแตะเพื่อระบุตัวตน' }}
+      </p>
     </div>
 
     <!-- Scan Animation Box with Hospital Glow -->
@@ -24,7 +26,7 @@
       <input
         type="text"
         class="hospital-input"
-        placeholder="แตะที่นี่แล้วสแกนบัตรเจ้าหน้าที่..."
+        [placeholder]="path === 'Dispen' ? 'สแกนบัตรเจ้าหน้าที่ หรือ QR Code ใบสั่งยา...' : 'แตะที่นี่แล้วสแกนบัตรเจ้าหน้าที่...'"
         aria-label="Username"
         #cardInput
         (focus)="cardInput.select()"
@@ -35,7 +37,7 @@
     </div>
 
     <p class="auth-hint mt-3">
-      ทาบบัตร RFID หรือสแกน Barcode ประจำตัวที่เครื่องอ่าน
+      {{ path === 'Dispen' ? '💡 สามารถสแกนบัตร RFID เจ้าหน้าที่ หรือ สแกน QR Code ใบสั่งยา (QR_Order) ได้ทันที' : 'ทาบบัตร RFID หรือสแกน Barcode ประจำตัวที่เครื่องอ่าน' }}
     </p>
   </div>
 </div>

@@ -278,7 +278,45 @@
 .queue-actions-container {
   flex: 1 1 0;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+}
+
+.order-scanner-input-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 22px;
+  padding: 4px 14px;
+  margin-right: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.order-scanner-input-box:focus-within {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.scanner-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.dispen-scanner-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  color: #1e293b;
+  width: 190px;
+}
+
+.dispen-scanner-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.82rem;
 }
 
 .btn-refresh-queue {

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { AppService } from 'src/app/app.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -95,7 +95,7 @@ export class DispenComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
     console.log(this.userInfo);
-    if (this.userInfo) {
+    if (this.userInfo && this.userInfo.UserId) {
       const data = {
         PrescriptionNo: null,
         SeqNo: null,
@@ -110,10 +110,79 @@ export class DispenComponent implements AfterViewInit {
         console.warn('Android interface not found');
       }
 
-      this.fetchOrder();
+      this.fetchOrder(() => {
+        // ตรวจสอบว่ามีการสแกน QR_Order ส่งมาจากหน้า Login หรือไม่
+        const autoOpenStr = sessionStorage.getItem('autoOpenOrder');
+        if (autoOpenStr) {
+          sessionStorage.removeItem('autoOpenOrder');
+          try {
+            const autoOrder = JSON.parse(autoOpenStr);
+            if (autoOrder && autoOrder.PrescriptionNo) {
+              this.getDetail(autoOrder, true);
+            }
+          } catch (e) {
+            console.error('Error parsing autoOpenOrder', e);
+          }
+        }
+      });
     } else {
       this.router.navigate(['/']);
     }
+  }
+
+  private scanBuffer: string = '';
+  private lastKeyTime: number = 0;
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardScan(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - this.lastKeyTime > 250) {
+      this.scanBuffer = '';
+    }
+    this.lastKeyTime = now;
+
+    if (event.key === 'Enter') {
+      const code = this.scanBuffer.trim();
+      this.scanBuffer = '';
+      if (code.length >= 2) {
+        this.onScanOrder(code);
+      }
+    } else if (event.key.length === 1) {
+      this.scanBuffer += event.key;
+    }
+  }
+
+  onScanOrder(code: string): void {
+    const raw = (code || '').trim();
+    if (!raw) return;
+
+    this.service.playSound('scan');
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    this.service.post('fetchOrderByQR', { qrCode: raw }).subscribe({
+      next: (order) => {
+        if (order && order.PrescriptionNo) {
+          this.service.playSound('success');
+          this.getDetail(order, false);
+        } else {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          this.service.alert('warning', 'ไม่พบใบสั่งยานี้', `รหัสที่สแกน: ${raw}`);
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error(err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        this.service.alert('error', 'ไม่พบข้อมูลใบสั่งยา', `รหัสที่สแกน: ${raw}`);
+      },
+    });
   }
 
   dateChange(event: any): void {
@@ -540,7 +609,7 @@ export class DispenComponent implements AfterViewInit {
       PrescriptionNo: this.selectOrder.PrescriptionNo,
       SeqNo: this.selectItem.SeqNo,
       check: 1,
-      userPrint: this.userInfo.UserId,
+      userPrint: this.userInfo?.UserId || 'KIOSK',
     };
 
     if (window.Android && window.Android.receiveJson) {
@@ -558,7 +627,7 @@ export class DispenComponent implements AfterViewInit {
       .post('itemPrint', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
         SeqNo: this.selectItem.SeqNo,
-        UserId: this.userInfo.UserId,
+        UserId: this.userInfo?.UserId || 'KIOSK',
       })
       .subscribe({
         next: (response) => {
@@ -591,7 +660,7 @@ export class DispenComponent implements AfterViewInit {
       .post('itemDispen', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
         SeqNo: this.selectItem.SeqNo,
-        UserId: this.userInfo.UserId,
+        UserId: this.userInfo?.UserId || 'KIOSK',
       })
       .subscribe({
         next: (response) => {

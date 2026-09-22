@@ -35,14 +35,14 @@
     <div class="header-section section-user">
       <div *ngIf="userInfo.Fullname" class="user-badge-card" [title]="userInfo.Fullname">
         <div class="user-avatar-circle">
-          <span>👤</span>
+          <span>{{ userInfo.isKiosk ? '🤖' : '👤' }}</span>
         </div>
         <div class="user-info-text">
-          <span class="user-role-label">เจ้าหน้าที่ผู้ปฏิบัติงาน</span>
+          <span class="user-role-label">{{ userInfo.isKiosk ? 'โหมดอัตโนมัติ' : 'เจ้าหน้าที่ผู้ปฏิบัติงาน' }}</span>
           <span class="user-name-label" [title]="userInfo.Fullname">{{ userInfo.Fullname }}</span>
         </div>
         <button type="button" class="btn-hospital-danger ml-2" (click)="logOut()">
-          ออกจากระบบ
+          {{ userInfo.isKiosk ? 'กลับหน้าหลัก' : 'ออกจากระบบ' }}
         </button>
       </div>
     </div>
@@ -77,6 +77,16 @@
     </div>
 
     <div class="queue-actions-container">
+      <div class="order-scanner-input-box">
+        <span class="scanner-icon">📷</span>
+        <input
+          type="text"
+          #dispenScanInput
+          class="dispen-scanner-input"
+          placeholder="สแกน QR_Order / Rx..."
+          (keyup.enter)="onScanOrder(dispenScanInput.value); dispenScanInput.value = ''"
+        />
+      </div>
       <button
         type="button"
         class="btn-refresh-queue"
