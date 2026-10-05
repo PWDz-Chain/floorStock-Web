@@ -23,6 +23,13 @@
   margin-bottom: 24px;
 }
 
+.status-indicators-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .status-indicator {
   display: inline-flex;
   align-items: center;
@@ -31,6 +38,16 @@
   border: 1px solid #bbf7d0;
   padding: 6px 14px;
   border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.status-indicator.status-ws {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.status-indicator.status-ws .status-label {
+  color: #1d4ed8;
 }
 
 .status-pulse-dot {
@@ -40,6 +57,12 @@
   background-color: #16a34a;
   box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
   animation: pulse-green 2s infinite;
+}
+
+.status-pulse-dot.ws-dot {
+  background-color: #2563eb;
+  box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+  animation: pulse-blue 2s infinite;
 }
 
 @keyframes pulse-green {
@@ -54,6 +77,21 @@
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+@keyframes pulse-blue {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
   }
 }
 
@@ -88,18 +126,165 @@
 
 /* ---- OFFLINE state ---- */
 .status-indicator.status-offline {
-  background: #fff1f2;
-  border-color: #fecdd3;
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
 }
 
 .status-indicator.status-offline .status-label {
-  color: #be123c;
+  color: #be123c !important;
 }
 
 .status-pulse-dot.dot-offline {
-  background-color: #e11d48;
-  box-shadow: none;
-  animation: none;
+  background-color: #e11d48 !important;
+  box-shadow: none !important;
+  animation: none !important;
   opacity: 0.85;
 }
 
+/* ---- New Medicine Floating Banner ---- */
+.new-medicine-banner {
+  width: 100%;
+  max-width: 960px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 14px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4), 0 8px 10px -6px rgba(16, 185, 129, 0.2);
+  animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.banner-icon-pulse {
+  font-size: 1.8rem;
+  animation: ringBell 1s infinite alternate;
+}
+
+@keyframes ringBell {
+  0% { transform: rotate(-12deg); }
+  100% { transform: rotate(12deg); }
+}
+
+.banner-details {
+  flex: 1;
+}
+
+.banner-title {
+  font-family: 'Prompt', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-new {
+  background: #fef08a;
+  color: #854d0e;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.banner-sub {
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.9rem;
+  opacity: 0.95;
+  margin-top: 2px;
+}
+
+.banner-sub .rx-no {
+  color: #fef08a;
+  font-weight: 700;
+}
+
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-banner-action {
+  background: #ffffff;
+  color: #047857;
+  font-family: 'Prompt', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+}
+
+.btn-banner-action:hover {
+  background: #f0fdf4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.btn-banner-close {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-banner-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ---- Quick Test Button Container ---- */
+.test-trigger-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-test-trigger {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px dashed #94a3b8;
+  color: #475569;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-test-trigger:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}

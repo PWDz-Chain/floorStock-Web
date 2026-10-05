@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { WebsocketService } from './websocket.service';
 
 @Component({
   selector: 'app-root',
@@ -10,10 +11,11 @@ export class AppComponent implements OnInit, OnDestroy {
   seconds = 0;
   interval: any;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private websocketService: WebsocketService) {}
 
   ngOnInit(): void {
     this.startCounter();
+    this.websocketService.connect();
   }
 
   ngOnDestroy(): void {

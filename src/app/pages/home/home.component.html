@@ -1,15 +1,54 @@
 <div class="kiosk-center-stage">
   <!-- Live Kiosk Status Bar -->
   <div class="home-status-widget">
-    <div class="status-indicator" [class.status-offline]="!apiOnline">
-      <span class="status-pulse-dot" [class.dot-offline]="!apiOnline"></span>
-      <span class="status-label">
-        {{ apiOnline ? 'ตู้พร้อมใช้งาน • ONLINE' : 'ไม่สามารถเชื่อมต่อได้ • OFFLINE' }}
-      </span>
+    <div class="status-indicators-group">
+      <!-- API Status -->
+      <div class="status-indicator" [class.status-offline]="!apiOnline" title="สถานะเชื่อมต่อ Backend API">
+        <span class="status-pulse-dot" [class.dot-offline]="!apiOnline"></span>
+        <span class="status-label">
+          {{ apiOnline ? 'ระบบ • ONLINE' : 'API • OFFLINE' }}
+        </span>
+      </div>
+
+      <!-- Real-time WebSocket Status -->
+      <div class="status-indicator status-ws" [class.status-offline]="!wsOnline" title="ระบบแจ้งเตือน Real-time WebSocket">
+        <span class="status-pulse-dot ws-dot" [class.dot-offline]="!wsOnline"></span>
+        <span class="status-label">
+          {{ wsOnline ? 'REAL-TIME ยาใหม่ • พร้อม' : 'REAL-TIME • กำลังต่อใหม่' }}
+        </span>
+      </div>
     </div>
+
+    <!-- Clock Display -->
     <div class="clock-display">
       <span class="clock-time">{{ currentTime }}</span>
       <span class="clock-date">{{ currentDate }}</span>
+    </div>
+  </div>
+
+  <!-- New Medicine Floating Banner (แสดงเมื่อมียาใหม่เข้ามา) -->
+  <div *ngIf="medicineBannerVisible && latestMedicine" class="new-medicine-banner animate__animated animate__fadeInDown">
+    <div class="banner-content">
+      <div class="banner-icon-pulse">
+        <span class="bell-icon">🔔</span>
+      </div>
+      <div class="banner-details">
+        <div class="banner-title">
+          <span class="badge-new">NEW</span> มีรายการยาใหม่เข้ามาในระบบ!
+        </div>
+        <div class="banner-sub">
+          <strong>ใบสั่งยา:</strong> <span class="rx-no">{{ latestMedicine.prescriptionNo }}</span> • 
+          <strong>ผู้ป่วย:</strong> {{ latestMedicine.patientName }}
+        </div>
+      </div>
+      <div class="banner-actions">
+        <button class="btn-banner-action" (click)="goToDispen()">
+          ไปหน้ารับยา ➔
+        </button>
+        <button class="btn-banner-close" (click)="dismissBanner()" title="ปิดการแจ้งเตือน">
+          ✕
+        </button>
+      </div>
     </div>
   </div>
 
@@ -56,5 +95,12 @@
         <p class="hospital-card-desc">จัดการและเติมสต็อกยา</p>
       </div>
     </div>
+  </div>
+
+  <!-- Quick Test Action (สำหรับทดสอบ WebSocket จำลองยาใหม่) -->
+  <div class="test-trigger-container">
+    <button class="btn-test-trigger" (click)="triggerTestMedicine()" title="กดเพื่อส่งสัญญาณจำลองรายการยาใหม่เข้ามาทันที">
+      ⚡ ทดสอบจำลองยาใหม่เข้ามา (Test WebSocket Alert)
+    </button>
   </div>
 </div>
