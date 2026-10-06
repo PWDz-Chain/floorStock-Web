@@ -26,10 +26,16 @@ export class AppService {
   }
 
   generatePdf(print_slip: any): Observable<any> {
-    // console.log(print_slip);
-    // return this.post('generatePdf', '');
-
     return this.post('generatePdf', print_slip);
+  }
+
+  /**
+   * ส่ง Log จากหน้าจอ Kiosk Client ไปบันทึกลงไฟล์ transaction-YYYY-MM-DD.txt ฝั่ง Server
+   */
+  logClient(level: 'INFO' | 'WARN' | 'ERROR', category: string, message: string, data: any = null): void {
+    this.post('clientLog', { level, category, message, data }).subscribe({
+      error: () => {} // Silent catch
+    });
   }
 
   private audioCtx: any = null;
