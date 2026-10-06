@@ -260,31 +260,3 @@
 .btn-banner-close:hover {
   background: rgba(255, 255, 255, 0.35);
 }
-
-/* ---- Quick Test Button Container ---- */
-.test-trigger-container {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.btn-test-trigger {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px dashed #94a3b8;
-  color: #475569;
-  font-family: 'Prompt', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 8px 20px;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-test-trigger:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  transform: translateY(-1px);
-}

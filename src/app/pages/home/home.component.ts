@@ -3,7 +3,7 @@ import { AppService } from 'src/app/app.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { WebsocketService, NewMedicineAlert } from 'src/app/websocket.service';
+import { WebsocketService, NewMedicineAlert } from '../../websocket.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -51,7 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.wsOnline = connected;
     });
 
-    this.wsSub = this.wsService.onNewMedicine$.subscribe((medicine) => {
+    this.wsSub = this.wsService.onNewMedicine$.subscribe((medicine: NewMedicineAlert) => {
       this.latestMedicine = medicine;
       this.medicineBannerVisible = true;
     });
@@ -96,23 +96,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   goToDispen(): void {
     this.dismissBanner();
     this.navigate('Dispen');
-  }
-
-  /**
-   * ปุ่มจำลองส่งข้อมูลยาใหม่สำหรับทดสอบ WebSocket
-   */
-  triggerTestMedicine(): void {
-    this.appService.playSound('click');
-    const randomRx = 'RX-' + Math.floor(100000 + Math.random() * 900000);
-    this.http.get(`${environment.baseUrl}/triggerNewMedicine?prescriptionNo=${randomRx}&name=นายทดสอบ+ระบบยา&ward=Ward+ICU&bed=12&drug=Ceftriaxone+1g+Inj.`)
-      .subscribe({
-        next: () => {
-          console.log('[Test] Trigger sent successfully');
-        },
-        error: (err) => {
-          console.error('[Test] Failed to trigger test medicine:', err);
-        }
-      });
   }
 
   navigate(path: string): void {
