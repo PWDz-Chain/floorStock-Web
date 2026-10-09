@@ -114,7 +114,9 @@
   <div class="modal-dialog modal-dialog-centered modal-xl bottom-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title" id="selectBinModalLabel">เลือกตำแหน่ง</h2>
+        <h2 class="modal-title" id="selectBinModalLabel">
+          เลือกตำแหน่ง <span *ngIf="matchingInventory.length > 0 && matchingInventory[0]?.DrugCd">[{{ matchingInventory[0]?.DrugCd }}] {{ matchingInventory[0]?.DrugNm }}</span>
+        </h2>
         <button
           type="button"
           class="close"
@@ -191,7 +193,7 @@
             <span class="badge-bed">ความจุ: {{ selectItem.Total_In_Qty || 0 }} / {{ selectItem.Max_Qty }} กล่อง</span>
           </div>
           <h2 class="modal-patient-title">
-            ช่อง <strong>Bin {{ selectItem.binID }}</strong>: {{ selectItem.DrugNm || selectItem.DrugCd }}
+            <span *ngIf="selectItem.DrugCd">[{{ selectItem.DrugCd }}] </span>{{ selectItem.DrugNm || (selectItem.DrugCd ? '' : 'ช่องว่าง') }}
           </h2>
         </div>
         <button
