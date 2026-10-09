@@ -20,16 +20,23 @@ export class RefillComponent implements OnInit {
 
   ngOnInit(): void {
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-    if (parseInt(this.userInfo.Position ) > 1) {
-      // console.log(this.userInfo);
+    const userLevel = this.userInfo?.Level ?? this.userInfo?.level;
+    if (userLevel === 0 || userLevel === '0') {
+      this.service.alert(
+        'warning',
+        'เฉพาะเจ้าหน้าที่เติมยาเท่านั้น',
+        'ท่านไม่มีสิทธิ์เข้าถึงเมนูนี้'
+      );
+      this.router.navigate(['/']);
+      return;
+    }
+    if (parseInt(this.userInfo.Position) > 1) {
       this.service.alert(
         'error',
         'คุณไม่ได้รับอนุญาติให้เข้าถึง',
         'โปรดติดต่อผู้ดูแลระบบ'
       );
       this.router.navigate(['/Login']);
-    } else{
-
     }
   }
 

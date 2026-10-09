@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 const _window: any = window;
 import * as moment from 'moment';
 import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-invs',
@@ -50,12 +51,26 @@ export class InvsComponent implements OnInit, AfterViewInit, OnDestroy {
   isModalOpen: boolean = false;
   private keepFocusInterval: any = null;
 
-  constructor(private service: AppService, private http: HttpClient, private location: Location) {}
+  constructor(
+    private service: AppService,
+    private http: HttpClient,
+    private location: Location,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.fecthInventory();
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-    // console.log(this.userInfo);
+    const userLevel = this.userInfo?.Level ?? this.userInfo?.level;
+    if (userLevel === 0 || userLevel === '0') {
+      this.service.alert(
+        'warning',
+        'เฉพาะเจ้าหน้าที่เติมยาเท่านั้น',
+        'ท่านไม่มีสิทธิ์เข้าถึงเมนูนี้'
+      );
+      this.router.navigate(['/']);
+      return;
+    }
+    this.fecthInventory();
   }
 
   ngAfterViewInit(): void {

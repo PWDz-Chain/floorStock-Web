@@ -127,13 +127,25 @@ export class AppService {
     icon: 'error' | 'success' | 'warning',
     title: string,
     text: string = '',
+    timer: number = 2000
   ): Promise<any> => {
-    this.playSound(icon === 'success' ? 'success' : 'error');
+    this.playSound(icon === 'success' ? 'success' : icon === 'warning' ? 'warning' : 'error');
     return Swal.fire({
       icon: icon,
       title: title,
       text: text,
-      confirmButtonText: 'ตกลง',
+      timer: timer,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      showCloseButton: false,
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      customClass: {
+        popup: 'custom-swal-popup',
+        title: 'custom-swal-title',
+        htmlContainer: 'custom-swal-html',
+        timerProgressBar: `custom-swal-progress-${icon}`,
+      },
     });
   };
 
@@ -141,15 +153,25 @@ export class AppService {
     icon: 'error' | 'success' | 'warning',
     title: string,
     text: string = '',
+    timer: number = 2000
   ): Promise<any> => {
-    this.playSound(icon === 'success' ? 'success' : 'error');
+    this.playSound(icon === 'success' ? 'success' : icon === 'warning' ? 'warning' : 'error');
     return Swal.fire({
       icon: icon,
       title: title,
       text: text,
-      timer: 2000,
+      timer: timer,
       timerProgressBar: true,
       showConfirmButton: false,
+      showCloseButton: false,
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      customClass: {
+        popup: 'custom-swal-popup',
+        title: 'custom-swal-title',
+        htmlContainer: 'custom-swal-html',
+        timerProgressBar: `custom-swal-progress-${icon}`,
+      },
     });
   };
 }

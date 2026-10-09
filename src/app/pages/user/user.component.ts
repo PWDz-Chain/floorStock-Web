@@ -13,5 +13,17 @@ export class UserComponent implements OnInit {
     this.assets = this.appService.assets;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
+    const userLevel = userInfo?.Level ?? userInfo?.level;
+    if (userLevel === 0 || userLevel === '0') {
+      this.appService.alert(
+        'warning',
+        'เฉพาะเจ้าหน้าที่เติมยาเท่านั้น',
+        'ท่านไม่มีสิทธิ์เข้าถึงเมนูนี้'
+      );
+      this.router.navigate(['/']);
+      return;
+    }
+  }
 }

@@ -31,7 +31,13 @@ export class DispenComponent implements AfterViewInit {
   isRefreshing: boolean = false;
   userInfo: any = null;
   selectedDate: string = moment(new Date()).format('YYYY-MM-DD');
+  selectedDateObj: Date = new Date();
+  showCalendar: boolean = false;
   activeTab: string = 'wait';
+
+  get isToday(): boolean {
+    return this.selectedDate === moment().format('YYYY-MM-DD');
+  }
 
   detailOrder: any[] = [];
   selectOrder: any = null;
@@ -47,7 +53,6 @@ export class DispenComponent implements AfterViewInit {
     'Hn',
     'An',
     'PatientName',
-    'BedNo',
   ];
 
   listDone: Array<any> = [];
@@ -60,7 +65,6 @@ export class DispenComponent implements AfterViewInit {
     'Hn',
     'An',
     'PatientName',
-    'BedNo',
   ];
 
   listDetail: Array<any> = [];
@@ -81,6 +85,33 @@ export class DispenComponent implements AfterViewInit {
   campaign = new FormGroup({
     picker: new FormControl(new Date()),
   });
+
+  wardList: any[] = [];
+  selectedWard: string = 'W';
+  isLevel0: boolean = false;
+  userWardDesc: string = '';
+  showWardDropdown: boolean = false;
+  wardSearchQuery: string = '';
+
+  get filteredWardList(): any[] {
+    if (!this.wardSearchQuery || !this.wardSearchQuery.trim()) {
+      return this.wardList;
+    }
+    const q = this.wardSearchQuery.trim().toLowerCase();
+    return this.wardList.filter(
+      (w) =>
+        (w.wardcode && String(w.wardcode).toLowerCase().includes(q)) ||
+        (w.warddesc && String(w.warddesc).toLowerCase().includes(q))
+    );
+  }
+
+  getSelectedWardName(): string {
+    if (!this.selectedWard || this.selectedWard === 'W' || this.selectedWard === 'ALL') {
+      return 'ทุกหอผู้ป่วย (All Wards)';
+    }
+    const found = this.wardList.find((w) => w.wardcode === this.selectedWard);
+    return found ? `${found.wardcode} - ${found.warddesc}` : this.selectedWard;
+  }
 
   private isNavigatingHome: boolean = false;
 
@@ -106,6 +137,14 @@ export class DispenComponent implements AfterViewInit {
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
     console.log(this.userInfo);
     if (this.userInfo && this.userInfo.UserId) {
+      const userLevel = this.userInfo?.Level ?? this.userInfo?.level;
+      this.isLevel0 = (userLevel === 0 || userLevel === '0');
+      this.userWardDesc = this.userInfo?.warddesc || this.userInfo?.wardcode || 'หอผู้ป่วย';
+
+      if (!this.isLevel0) {
+        this.fetchWards();
+      }
+
       const data = {
         PrescriptionNo: null,
         SeqNo: null,
@@ -128,6 +167,18 @@ export class DispenComponent implements AfterViewInit {
           try {
             const autoOrder = JSON.parse(autoOpenStr);
             if (autoOrder && autoOrder.PrescriptionNo) {
+              if (this.isLevel0) {
+                const userWards = (this.userInfo?.wardcode || '').split('|').map((w: string) => w.trim());
+                const orderWard = String(autoOrder.WardCd || '').trim();
+                if (userWards.length > 0 && !userWards.includes(orderWard) && !userWards.includes('W')) {
+                  this.service.alert(
+                    'warning',
+                    'ไม่สามารถเข้าถึงใบสั่งยานี้ได้',
+                    `ใบสั่งยานี้เป็นของหอผู้ป่วย (${autoOrder.WardName || autoOrder.WardCd}) ซึ่งไม่ใช่หอผู้ป่วยที่คุณมีสิทธิ์เข้าถึง`
+                  );
+                  return;
+                }
+              }
               this.getDetail(autoOrder, true);
             }
           } catch (e) {
@@ -190,6 +241,23 @@ export class DispenComponent implements AfterViewInit {
     this.service.post('fetchOrderByQR', { qrCode: raw }).subscribe({
       next: (order) => {
         if (order && order.PrescriptionNo) {
+          const userLevel = this.userInfo?.Level ?? this.userInfo?.level;
+          const isLevel0 = (userLevel === 0 || userLevel === '0');
+          if (isLevel0) {
+            const userWards = (this.userInfo?.wardcode || '').split('|').map((w: string) => w.trim());
+            const orderWard = String(order.WardCd || '').trim();
+            if (userWards.length > 0 && !userWards.includes(orderWard) && !userWards.includes('W')) {
+              this.isLoading = false;
+              this.cdr.detectChanges();
+              this.service.alert(
+                'warning',
+                'ไม่สามารถเข้าถึงใบสั่งยานี้ได้',
+                `ใบสั่งยานี้เป็นของหอผู้ป่วย (${order.WardName || order.WardCd}) ซึ่งไม่ใช่หอผู้ป่วยที่คุณมีสิทธิ์เข้าถึง`
+              );
+              return;
+            }
+          }
+
           this.service.playSound('success');
           this.getDetail(order, false);
         } else {
@@ -207,19 +275,72 @@ export class DispenComponent implements AfterViewInit {
     });
   }
 
-  dateChange(event: any): void {
+  toggleCalendar(event: Event): void {
+    event.stopPropagation();
+    this.showCalendar = !this.showCalendar;
+    if (this.showCalendar) {
+      this.showWardDropdown = false;
+    }
+  }
+
+  closeCalendar(): void {
+    this.showCalendar = false;
+  }
+
+  toggleWardDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showWardDropdown = !this.showWardDropdown;
+    if (this.showWardDropdown) {
+      this.showCalendar = false;
+      this.wardSearchQuery = '';
+    }
+  }
+
+  closeWardDropdown(): void {
+    this.showWardDropdown = false;
+    this.wardSearchQuery = '';
+  }
+
+  selectWard(wardCode: string): void {
     this.service.playSound('click');
-    this.selectedDate = moment(new Date(event.value)).format('YYYY-MM-DD');
+    this.selectedWard = wardCode;
+    this.showWardDropdown = false;
+    this.wardSearchQuery = '';
+    this.fetchOrder();
+  }
+
+  onCalendarDateChange(date: Date): void {
+    this.service.playSound('click');
+    this.selectedDateObj = date;
+    this.selectedDate = moment(date).format('YYYY-MM-DD');
+    this.campaign.get('picker')?.setValue(date);
+    this.showCalendar = false;
     if (this.userInfo) {
       this.fetchOrder();
+    }
+  }
+
+  dateChange(event: any): void {
+    this.service.playSound('click');
+    const val = event?.value ?? event?.target?.value;
+    if (val) {
+      const d = new Date(val);
+      this.selectedDateObj = d;
+      this.selectedDate = moment(d).format('YYYY-MM-DD');
+      this.campaign.get('picker')?.setValue(d);
+      if (this.userInfo) {
+        this.fetchOrder();
+      }
     }
   }
 
   setToday(): void {
     this.service.playSound('click');
     const today = new Date();
+    this.selectedDateObj = today;
     this.campaign.get('picker')?.setValue(today);
     this.selectedDate = moment(today).format('YYYY-MM-DD');
+    this.showCalendar = false;
     if (this.userInfo) {
       this.fetchOrder();
     }
@@ -229,11 +350,31 @@ export class DispenComponent implements AfterViewInit {
     this.service.playSound('click');
     const current = moment(this.selectedDate, 'YYYY-MM-DD');
     const newDate = current.add(offsetDays, 'days').toDate();
+    this.selectedDateObj = newDate;
     this.campaign.get('picker')?.setValue(newDate);
     this.selectedDate = moment(newDate).format('YYYY-MM-DD');
     if (this.userInfo) {
       this.fetchOrder();
     }
+  }
+
+  fetchWards(): void {
+    this.service.get('wards').subscribe({
+      next: (res) => {
+        if (res && Array.isArray(res.data)) {
+          this.wardList = res.data;
+        } else if (Array.isArray(res)) {
+          this.wardList = res;
+        }
+      },
+      error: (err) => console.error('Error fetching wards:', err),
+    });
+  }
+
+  onWardChange(wardCode: string): void {
+    this.service.playSound('click');
+    this.selectedWard = wardCode;
+    this.fetchOrder();
   }
 
   switchTab(tab: string): void {
@@ -255,14 +396,26 @@ export class DispenComponent implements AfterViewInit {
       this.isLoading = true;
     }
 
-    let wardCode = this.userInfo?.wardcode ?? '';
-    if (wardCode.includes('|')) {
-      wardCode = wardCode
-        .split('|')
-        .map((code: string) => `'${code}'`)
-        .join(',');
+    let wardCode = '';
+    if (this.isLevel0) {
+      let rawWard = this.userInfo?.wardcode ?? '';
+      if (rawWard.includes('|')) {
+        wardCode = rawWard
+          .split('|')
+          .map((code: string) => `'${code.trim()}'`)
+          .join(',');
+      } else if (rawWard) {
+        wardCode = `'${rawWard.trim()}'`;
+      } else {
+        wardCode = "''";
+      }
     } else {
-      wardCode = `'${wardCode}'`;
+      // Level 1 Admin can view all or filter by selected ward
+      if (!this.selectedWard || this.selectedWard === 'W' || this.selectedWard === 'ALL') {
+        wardCode = "'W'";
+      } else {
+        wardCode = `'${this.selectedWard.trim()}'`;
+      }
     }
 
     let completedRequests = 0;
@@ -283,6 +436,7 @@ export class DispenComponent implements AfterViewInit {
       .post('fetchWaitOrder', {
         selectedDate: this.selectedDate,
         wardCode: wardCode,
+        Level: this.isLevel0 ? 0 : 1,
       })
       .subscribe({
         next: (response) => {
@@ -306,6 +460,7 @@ export class DispenComponent implements AfterViewInit {
       .post('fetchSuccessOrder', {
         selectedDate: this.selectedDate,
         wardCode: wardCode,
+        Level: this.isLevel0 ? 0 : 1,
       })
       .subscribe({
         next: (response) => {
