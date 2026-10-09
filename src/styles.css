@@ -519,8 +519,6 @@ img.list {
 .modal-dialog {
   max-width: 100% !important;
 }
-<<<<<<< HEAD
-=======
 
 /* ============================================
    SMART KIOSK NEW MEDICINE ALERT MODAL
@@ -811,5 +809,3 @@ div.swal2-container {
   height: 5px !important;
   border-radius: 4px !important;
 }
-
->>>>>>> 16f961b (filter ward && fixed role User)
