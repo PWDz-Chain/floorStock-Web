@@ -22,76 +22,22 @@
   border-radius: 24px;
   border: 1px solid rgba(226, 232, 240, 0.9);
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
-  padding: 16px 24px;
-  margin-bottom: 20px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  padding: 18px 28px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
 }
 
-/* Section 1: Left Date Badge */
-.header-section.section-date {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
-}
-
-.hospital-info-box {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 8px 18px;
-}
-
-.info-icon-wrapper {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
-}
-
-.info-emoji {
-  font-size: 20px;
-}
-
-.info-text-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.info-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.info-value-highlight {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #0f172a;
-  font-family: 'Inter', 'Prompt', sans-serif;
-}
-
-/* Section 2: Center Station Branding */
+/* Section Left: Station Branding */
 .header-section.section-station {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   min-width: 0;
-  padding: 0 8px;
+  padding: 0;
 }
 
 .station-badge {
@@ -131,6 +77,825 @@
   font-size: 0.95rem;
   color: #64748b;
   margin: 0;
+}
+
+/* ============================================
+   CALENDAR BACKDROP
+============================================ */
+
+.calendar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: transparent;
+}
+
+/* ============================================
+   DATE FILTER BAR
+============================================ */
+
+.date-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f8faff 0%, #ffffff 60%, #f0f9ff 100%);
+  border-radius: 22px;
+  border: 1.5px solid rgba(186, 230, 253, 0.6);
+  box-shadow:
+    0 4px 24px rgba(14, 165, 233, 0.07),
+    0 1px 4px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 10px 16px 10px 14px;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: visible;
+}
+
+.date-filter-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8 40%, #7dd3fc 60%, transparent);
+  border-radius: 0 0 4px 4px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ---- Left group ---- */
+.date-filter-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Round nav buttons */
+.date-nav-btn {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  color: #0369a1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  flex-shrink: 0;
+}
+
+.date-nav-btn:hover {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+.date-nav-btn:active {
+  transform: scale(0.93);
+  box-shadow: none;
+}
+
+/* ---- Date chip (clickable, opens custom calendar) ---- */
+.date-display-chip {
+  position: relative;
+  cursor: pointer;
+}
+
+.date-chip-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 16px;
+  padding: 7px 16px 7px 12px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.08);
+  user-select: none;
+}
+
+.date-display-chip:hover .date-chip-inner,
+.date-display-chip:focus-within .date-chip-inner {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15), 0 2px 8px rgba(14, 165, 233, 0.1);
+}
+
+.date-chip-icon {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.date-chip-texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.date-chip-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.date-chip-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0c4a6e;
+  font-family: 'Prompt', 'Inter', sans-serif;
+  white-space: nowrap;
+}
+
+.chip-caret {
+  color: #64748b;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 4px;
+}
+
+.chip-caret.open {
+  transform: rotate(180deg);
+  color: #0284c7;
+}
+
+/* ---- Custom Calendar Dropdown Panel ---- */
+.calendar-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 1000;
+  width: 310px;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1.5px solid rgba(186, 230, 253, 0.8);
+  box-shadow:
+    0 24px 60px rgba(14, 165, 233, 0.14),
+    0 8px 24px rgba(15, 23, 42, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  overflow: hidden;
+  animation: calFadeSlide 0.22s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+@keyframes calFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calendar-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  padding: 14px 18px;
+  color: #ffffff;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.cal-header-icon {
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.calendar-panel-header span {
+  flex: 1;
+}
+
+.cal-close-btn {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffffff;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.cal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+/* Calendar Body & mat-calendar overrides */
+.calendar-body {
+  padding: 8px 4px 12px 4px;
+  background: #ffffff;
+}
+
+.calendar-body ::ng-deep .mat-calendar {
+  font-family: 'Prompt', sans-serif !important;
+  width: 100%;
+}
+
+.calendar-body ::ng-deep .mat-calendar-header {
+  padding: 0 8px 0 8px;
+}
+
+.calendar-body ::ng-deep .mat-calendar-period-button {
+  font-family: 'Prompt', sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #0c4a6e !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-arrow {
+  border-top-color: #0284c7 !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-previous-button,
+.calendar-body ::ng-deep .mat-calendar-next-button {
+  color: #0284c7 !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-previous-button:hover,
+.calendar-body ::ng-deep .mat-calendar-next-button:hover {
+  background: #e0f2fe !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-table-header th {
+  font-family: 'Prompt', sans-serif !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  padding-bottom: 6px !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-body-cell-content {
+  font-family: 'Prompt', sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  border-radius: 10px !important;
+  transition: background 0.15s, color 0.15s !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover
+  > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border-color: #38bdf8 !important;
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-body-selected {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4) !important;
+  border-radius: 10px !important;
+}
+
+.calendar-body ::ng-deep .mat-calendar-body-label {
+  font-family: 'Prompt', sans-serif !important;
+  color: #94a3b8 !important;
+  font-size: 0.8rem !important;
+}
+
+/* ---- Today button ---- */
+.date-today-btn {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  height: 38px;
+  padding: 0 16px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.15s;
+  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+.date-today-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
+}
+
+.date-today-btn:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+}
+
+/* ============================================
+   PROPORTIONATE WARD FILTER CHIP & CUSTOM PANEL
+============================================ */
+
+.ward-display-chip {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ward-chip-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 16px;
+  padding: 7px 16px 7px 12px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.08);
+  user-select: none;
+}
+
+.ward-display-chip:hover .ward-chip-inner,
+.ward-display-chip:focus-within .ward-chip-inner {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15), 0 2px 8px rgba(14, 165, 233, 0.1);
+}
+
+.ward-chip-icon {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.ward-display-chip:hover .ward-chip-icon {
+  transform: scale(1.08);
+}
+
+.ward-chip-texts {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.ward-chip-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ward-chip-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0c4a6e;
+  font-family: 'Prompt', 'Inter', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+
+/* Locked Ward Badge for Level 0 Staff */
+.ward-display-chip.locked {
+  cursor: default;
+}
+
+.ward-chip-inner.locked {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.08);
+}
+
+.ward-chip-icon.locked {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #16a34a;
+}
+
+.ward-chip-label.locked {
+  color: #16a34a;
+}
+
+.ward-chip-value.locked {
+  color: #15803d;
+}
+
+/* Custom Ward Dropdown Panel */
+.ward-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1000;
+  width: 320px;
+  max-width: 90vw;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1.5px solid rgba(186, 230, 253, 0.85);
+  box-shadow:
+    0 20px 50px rgba(14, 165, 233, 0.16),
+    0 8px 20px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  overflow: hidden;
+  animation: wardFadeSlide 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+@keyframes wardFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ward-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  padding: 10px 14px;
+  color: #ffffff;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.ward-panel-header-icon {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ward-panel-header span {
+  flex: 1;
+  font-size: 0.88rem;
+}
+
+.ward-panel-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffffff;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.ward-panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Quick search input */
+.ward-search-box {
+  position: relative;
+  padding: 8px 10px 6px 10px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+}
+
+.ward-search-icon {
+  position: absolute;
+  left: 18px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.ward-search-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 28px 0 30px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.82rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.ward-search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2.5px rgba(2, 132, 199, 0.18);
+}
+
+.ward-search-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.ward-search-clear {
+  position: absolute;
+  right: 18px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.ward-search-clear:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Ward list scroll */
+.ward-list-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+  background: #ffffff;
+}
+
+.ward-list-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.ward-list-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+
+.ward-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Ward list item */
+.ward-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+}
+
+.ward-list-item:hover {
+  background: #f0f9ff;
+  transform: translateX(2px);
+}
+
+.ward-list-item.selected {
+  background: #e0f2fe;
+  border-left: 3px solid #0284c7;
+}
+
+.ward-item-badge {
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0369a1;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+  min-width: 32px;
+  text-align: center;
+}
+
+.ward-item-badge.all {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+
+.ward-item-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.ward-item-name {
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ward-list-item.selected .ward-item-name {
+  color: #0369a1;
+  font-weight: 700;
+}
+
+.ward-item-sub {
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.ward-item-check {
+  color: #0284c7;
+  font-size: 0.95rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.ward-list-empty {
+  padding: 20px 12px;
+  text-align: center;
+  color: #94a3b8;
+  font-family: 'Prompt', sans-serif;
+  font-size: 0.85rem;
+}
+
+/* ---- Custom Styled Native Date Input ---- */
+.date-input-field-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 16px;
+  padding: 6px 14px;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.08);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.date-input-field-wrapper:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.15);
+}
+
+.date-input-field-wrapper:focus-within {
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18), 0 4px 14px rgba(14, 165, 233, 0.15);
+}
+
+.date-input-icon {
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-hospital-date-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Prompt', 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0c4a6e;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.custom-hospital-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(36%) sepia(87%) saturate(1450%) hue-rotate(174deg) brightness(92%) contrast(98%);
+  opacity: 0.85;
+  transition: transform 0.15s ease;
+}
+
+.custom-hospital-date-input::-webkit-calendar-picker-indicator:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+/* ---- Right group (result pill) ---- */
+.date-filter-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1.5px solid #6ee7b7;
+  border-radius: 999px;
+  padding: 6px 14px 6px 10px;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.12);
+}
+
+.result-pill.date-diff-pill {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-color: #7dd3fc;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+}
+
+.result-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse-green 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.result-dot.blue {
+  background: #0284c7;
+  animation: pulse-blue 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulse-blue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(2, 132, 199, 0); }
+}
+
+.result-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #065f46;
+  font-family: 'Inter', 'Prompt', sans-serif;
+  line-height: 1;
+}
+
+.result-pill.date-diff-pill .result-text {
+  color: #0369a1;
+}
+
+.result-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #059669;
+  font-family: 'Prompt', sans-serif;
+}
+
+.result-pill.date-diff-pill .result-label {
+  color: #0284c7;
 }
 
 /* Section 3: Right User Profile */
@@ -370,6 +1135,38 @@
 }
 
 @media (max-width: 768px) {
+  .dispen-header-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .header-section.section-station {
+    align-items: center;
+    text-align: center;
+  }
+
+  .date-filter-bar {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .date-filter-left {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .calendar-panel {
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 32px);
+    max-width: 320px;
+  }
+
   .queue-tab-bar {
     flex-direction: column;
     align-items: center;

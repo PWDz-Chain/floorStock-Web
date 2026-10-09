@@ -2,6 +2,6 @@
 export const APP_VERSION = {
   version: '1.0.0',
   tag: 'v1.0.0',
-  buildTime: '2026-10-06 09:57:18',
-  buildTimestamp: 1791255438288
+  buildTime: '2026-10-09 14:23:15',
+  buildTimestamp: 1791530595079
 };

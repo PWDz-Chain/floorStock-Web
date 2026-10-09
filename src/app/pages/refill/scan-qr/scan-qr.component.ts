@@ -3,6 +3,7 @@ import { AppService } from 'src/app/app.service';
 import { HttpClient } from '@angular/common/http';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 import * as moment from 'moment';
 const _window: any = window;
 
@@ -37,7 +38,8 @@ export class ScanQrComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private service: AppService,
     private http: HttpClient,
-    private location: Location
+    private location: Location,
+    private router: Router
   ) {
     this.assets = this.service.assets;
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
@@ -49,6 +51,17 @@ export class ScanQrComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const userLevel = this.userInfo?.Level ?? this.userInfo?.level;
+    if (userLevel === 0 || userLevel === '0') {
+      this.service.alert(
+        'warning',
+        'เฉพาะเจ้าหน้าที่เติมยาเท่านั้น',
+        'ท่านไม่มีสิทธิ์เข้าถึงเมนูนี้'
+      );
+      this.router.navigate(['/']);
+      return;
+    }
+
     this.service.get('inventory').subscribe({
       next: (response) => {
         this.inventory = Array.isArray(response) ? response : [];
@@ -218,8 +231,8 @@ export class ScanQrComponent implements OnInit, AfterViewInit, OnDestroy {
               })
               .subscribe({
                 next: (response) => {
-                  if (response.success) {
-                    this.isLoading = false;
+                  this.isLoading = false;
+                  if (response && response.success) {
                     this.clearData();
                     this.isModalOpen = false;
                     _window.$(`#staticBackdrop`).modal('hide');
@@ -227,10 +240,14 @@ export class ScanQrComponent implements OnInit, AfterViewInit, OnDestroy {
                     setTimeout(() => {
                       this.resetAndFocusInput();
                     }, 2000);
+                  } else {
+                    this.service.alert('error', 'อัพเดตสต็อกไม่สำเร็จ', '');
                   }
                 },
                 error: (error: HttpErrorResponse) => {
+                  this.isLoading = false;
                   console.error(error);
+                  this.service.alert('error', 'อัพเดตสต็อกไม่สำเร็จ', '');
                 },
               });
           } else {
