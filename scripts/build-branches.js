@@ -10,14 +10,14 @@ const ALL_TARGETS = {
     name: 'Sunpasit-ER',
     branch: 'Sunpasit-ER',
     outputPath: 'dist/er/vmd-web',
-    baseHref: '/VMD/'
+    baseHref: '/vmd-web-er/'
   },
   ipd: {
     id: 'ipd',
     name: 'Sunpasit-IPD',
     branch: 'Sunpasit-IPD',
     outputPath: 'dist/ipd/vmd-web',
-    baseHref: '/VMD/'
+    baseHref: '/vmd-web-ipd/'
   }
 };
 
