@@ -2,7 +2,7 @@ import { APP_VERSION } from './version';
 
 export const environment = {
   production: true,
-  baseUrl: 'http://200.200.200.10:3000',
+  baseUrl: 'http://192.168.96.5/vmd-ER',
   assets: '/VMD',
   version: APP_VERSION.version,
   tag: APP_VERSION.tag,
