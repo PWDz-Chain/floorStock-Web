@@ -942,6 +942,36 @@ export class DispenComponent implements AfterViewInit {
   async printAgian(item: any): Promise<void> {
     this.selectItem = item;
     await this.sendPrint();
+
+    try {
+      const printPayload = {
+        action: 'print',
+        prescriptionNo: this.selectOrder?.PrescriptionNo ?? '',
+        hn: this.selectOrder?.Hn ?? '',
+        patientName: this.selectOrder?.PatientName ?? '',
+        drugName: item?.DrugName ?? item?.orderitemname ?? '',
+        dosage: item?.DispensedDose ? String(item.DispensedDose) : '1',
+        instruction: item?.Freetext1 ?? '',
+        warning: item?.Freetext2 ?? '',
+        categoryCode: item?.Zone ?? item?.categoryCode ?? 'B',
+        qty: item?.DispensedDose ? String(item.DispensedDose) : '1',
+        index: `${item?.SeqNo || 1}/${this.listDetail?.length || 1}`,
+        edType: item?.ED ?? 'ED',
+      };
+      const jsonStr = JSON.stringify(printPayload);
+      const _window: any = window;
+      if (_window.Android) {
+        if (typeof _window.Android.printPrescription === 'function') {
+          _window.Android.printPrescription(jsonStr);
+        } else if (typeof _window.Android.receiveJson === 'function') {
+          _window.Android.receiveJson(jsonStr);
+        }
+      } else {
+        console.warn('Android printer interface not found');
+      }
+    } catch (err) {
+      console.error('Error invoking Android print:', err);
+    }
   }
 
   private checkDispenseRetries: number = 0;
