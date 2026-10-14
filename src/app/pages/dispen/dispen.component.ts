@@ -946,6 +946,7 @@ export class DispenComponent implements AfterViewInit {
     try {
       const printPayload = {
         action: 'print',
+        rotate180: true,
         prescriptionNo: this.selectOrder?.PrescriptionNo ?? '',
         hn: this.selectOrder?.Hn ?? '',
         patientName: this.selectOrder?.PatientName ?? '',
