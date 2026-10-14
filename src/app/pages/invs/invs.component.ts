@@ -557,7 +557,7 @@ export class InvsComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const userId = this.userInfo?.UserId || '1';
+    const userId = this.userInfo?.UserId || this.userInfo?.userId || this.userInfo?.user_id || '1';
 
     const datetime = moment().format('YYYYMMDDHHmmss');
     const qrCode = `${this.selectItem.binID}|${this.selectItem.DrugCd}|${qty}|${lotNo}|${exp}|${datetime}`;
