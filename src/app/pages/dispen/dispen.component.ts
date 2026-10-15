@@ -530,14 +530,17 @@ export class DispenComponent implements AfterViewInit {
             const hasPendingItems = this.listDetail.some(
               (item) => !item.DispenseDatetime
             );
-            if (hasPendingItems) {
-              this.isLoading = false;
-              this.cdr.detectChanges();
-              setTimeout(() => {
-                _window.$(`#detailModal`).modal('show');
-              }, 50);
-            } else {
-              // จ่ายยาครบทุกรายการแล้ว
+            const hasReceivableItems = this.listDetail.some(
+              (item) => !item.DispenseDatetime && item.DispensedDose <= item.AvailableQty
+            );
+
+            // ปิด modal เมื่อ:
+            // 1. รับยาครบทุกรายการแล้ว (!hasPendingItems)
+            // 2. หรือหลังจากการกดรับยา (playSound === false) แล้วไม่มีรายการยาให้รับในตู้อีกแล้ว (!hasReceivableItems)
+            const shouldCloseModal = !hasPendingItems || (!playSound && !hasReceivableItems);
+
+            if (shouldCloseModal) {
+              // จ่ายยาครบทุกรายการแล้ว หรือไม่มีรายการให้รับในตู้แล้ว
               this.listDetail = [];
               this.isLoading = false;
               this.cdr.detectChanges();
@@ -566,6 +569,12 @@ export class DispenComponent implements AfterViewInit {
                 // Flow เดิมของ User (เจ้าหน้าที่): ดึงข้อมูลรายการรอจ่ายใหม่ อยู่หน้าเดิม ทำงานต่อได้ตามปกติ
                 this.fetchOrder(undefined, false);
               }
+            } else {
+              this.isLoading = false;
+              this.cdr.detectChanges();
+              setTimeout(() => {
+                _window.$(`#detailModal`).modal('show');
+              }, 50);
             }
           } else {
             this.isLoading = false;
@@ -823,14 +832,17 @@ export class DispenComponent implements AfterViewInit {
     await this.sendPrint();
 
     this.service
-      .post('itemPrint', {
+      .post('itemDispen', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
         SeqNo: this.selectItem.SeqNo,
         UserId: this.userInfo?.UserId || 'KIOSK',
       })
       .subscribe({
         next: (response) => {
-          // console.log(response);
+          if (this.selectItem) {
+            this.selectItem.DispenseDatetime = new Date().toISOString();
+          }
+          this.cdr.detectChanges();
         },
         error: (error: HttpErrorResponse) => {
           console.error(error);
@@ -863,7 +875,10 @@ export class DispenComponent implements AfterViewInit {
       })
       .subscribe({
         next: (response) => {
-          // console.log(response);
+          if (this.selectItem) {
+            this.selectItem.DispenseDatetime = new Date().toISOString();
+          }
+          this.cdr.detectChanges();
         },
         error: (error: HttpErrorResponse) => {
           console.error(error);
@@ -928,7 +943,8 @@ export class DispenComponent implements AfterViewInit {
         })
         .subscribe({
           next: (response) => {
-            // console.log(response);
+            item.DispenseDatetime = new Date().toISOString();
+            this.cdr.detectChanges();
           },
           error: (error: HttpErrorResponse) => {
             console.error(error);
@@ -946,6 +962,7 @@ export class DispenComponent implements AfterViewInit {
     try {
       const printPayload = {
         action: 'print',
+        rotate180: true,
         prescriptionNo: this.selectOrder?.PrescriptionNo ?? '',
         hn: this.selectOrder?.Hn ?? '',
         patientName: this.selectOrder?.PatientName ?? '',
