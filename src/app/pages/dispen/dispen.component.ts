@@ -818,6 +818,10 @@ export class DispenComponent implements AfterViewInit {
       SeqNo: this.selectItem.SeqNo,
       check: 1,
       userPrint: this.userInfo?.UserId || 'KIOSK',
+      warddesc: this.selectOrder?.WardName ?? this.selectOrder?.wardname ?? '',
+      bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
+      patientName: this.selectOrder?.PatientName ?? '',
+      hn: this.selectOrder?.Hn ?? '',
     };
 
     if (window.Android && window.Android.receiveJson) {
@@ -832,7 +836,7 @@ export class DispenComponent implements AfterViewInit {
     await this.sendPrint();
 
     this.service
-      .post('itemDispen', {
+      .post('itemPrint', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
         SeqNo: this.selectItem.SeqNo,
         UserId: this.userInfo?.UserId || 'KIOSK',
@@ -840,19 +844,13 @@ export class DispenComponent implements AfterViewInit {
       .subscribe({
         next: (response) => {
           if (this.selectItem) {
-            this.selectItem.DispenseDatetime = new Date().toISOString();
+            this.selectItem.PrintDatetime = new Date().toISOString();
           }
           this.cdr.detectChanges();
         },
         error: (error: HttpErrorResponse) => {
-          console.error(error);
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          this.service.alert(
-            'error',
-            'ส่งรายการยาไม่สำเร็จ',
-            'กรุณาลองใหม่อีกครั้ง'
-          );
+          console.warn('itemPrint warning:', error);
+          // ไม่แสดง error alert ขัดจังหวะการทำงานของตู้จ่ายยา เพราะ checkDispense กำลังตรวจสถานะการจ่ายยาอยู่
         },
       });
 
@@ -922,6 +920,10 @@ export class DispenComponent implements AfterViewInit {
       SeqNo: '',
       check: 1,
       userPrint: this.userInfo?.UserId || 'KIOSK',
+      warddesc: this.selectOrder?.WardName ?? this.selectOrder?.wardname ?? '',
+      bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
+      patientName: this.selectOrder?.PatientName ?? '',
+      hn: this.selectOrder?.Hn ?? '',
     };
 
     if (window.Android && window.Android.receiveJson) {
@@ -960,20 +962,32 @@ export class DispenComponent implements AfterViewInit {
     await this.sendPrint();
 
     try {
+      let rawBin = item?.BinID ?? item?.binId ?? item?.binID ?? '';
+      if (!rawBin && item?.row && item?.column) {
+        rawBin = `${item.row}0${item.column}`;
+      }
+      if (rawBin && String(rawBin).length === 2 && !isNaN(Number(rawBin))) {
+        rawBin = `${String(rawBin)[0]}0${String(rawBin)[1]}`;
+      }
+
       const printPayload = {
         action: 'print',
         rotate180: true,
         prescriptionNo: this.selectOrder?.PrescriptionNo ?? '',
         hn: this.selectOrder?.Hn ?? '',
         patientName: this.selectOrder?.PatientName ?? '',
+        warddesc: this.selectOrder?.WardName ?? this.selectOrder?.wardname ?? '',
+        bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
         drugName: item?.DrugName ?? item?.orderitemname ?? '',
-        dosage: item?.DispensedDose ? String(item.DispensedDose) : '1',
-        instruction: item?.Freetext1 ?? '',
-        warning: item?.Freetext2 ?? '',
-        categoryCode: item?.Zone ?? item?.categoryCode ?? 'B',
-        qty: item?.DispensedDose ? String(item.DispensedDose) : '1',
+        instruction: item?.Freetext1 ?? item?.InstructionName ?? '',
+        warning: item?.Freetext2 ?? item?.Freq_Desc ?? '',
+        categoryCode: item?.Zone ?? item?.categoryCode ?? item?.Freetext3 ?? 'B',
+        binId: rawBin || '102',
+        qty: item?.DispensedDose ? String(item.DispensedDose) : (item?.orderqty ? String(item.orderqty) : '1'),
+        unit: item?.DispensedUnit ?? item?.orderunit ?? 'VIAL',
         index: `${item?.SeqNo || 1}/${this.listDetail?.length || 1}`,
         edType: item?.ED ?? 'ED',
+        stockName: 'FloorStock-IPD',
       };
       const jsonStr = JSON.stringify(printPayload);
       const _window: any = window;
