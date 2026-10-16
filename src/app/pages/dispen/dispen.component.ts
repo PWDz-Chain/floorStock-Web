@@ -836,7 +836,7 @@ export class DispenComponent implements AfterViewInit {
     await this.sendPrint();
 
     this.service
-      .post('itemPrint', {
+      .post('itemDispen', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
         SeqNo: this.selectItem.SeqNo,
         UserId: this.userInfo?.UserId || 'KIOSK',
@@ -844,13 +844,20 @@ export class DispenComponent implements AfterViewInit {
       .subscribe({
         next: (response) => {
           if (this.selectItem) {
+            this.selectItem.DispenseDatetime = new Date().toISOString();
             this.selectItem.PrintDatetime = new Date().toISOString();
           }
           this.cdr.detectChanges();
         },
         error: (error: HttpErrorResponse) => {
-          console.warn('itemPrint warning:', error);
-          // ไม่แสดง error alert ขัดจังหวะการทำงานของตู้จ่ายยา เพราะ checkDispense กำลังตรวจสถานะการจ่ายยาอยู่
+          console.error(error);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          this.service.alert(
+            'error',
+            'ส่งรายการยาไม่สำเร็จ',
+            'กรุณาลองใหม่อีกครั้ง'
+          );
         },
       });
 
@@ -977,14 +984,19 @@ export class DispenComponent implements AfterViewInit {
         hn: this.selectOrder?.Hn ?? '',
         patientName: this.selectOrder?.PatientName ?? '',
         warddesc: this.selectOrder?.WardName ?? this.selectOrder?.wardname ?? '',
+        wardcode: this.selectOrder?.WardCd ?? this.selectOrder?.wardcode ?? '',
+        WardCd: this.selectOrder?.WardCd ?? this.selectOrder?.wardcode ?? '',
         bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
         drugName: item?.DrugName ?? item?.orderitemname ?? '',
-        instruction: item?.Freetext1 ?? item?.InstructionName ?? '',
-        warning: item?.Freetext2 ?? item?.Freq_Desc ?? '',
+        instruction: item?.InstructionName ?? item?.Freetext1 ?? '',
+        InstructionName: item?.InstructionName ?? item?.Freetext1 ?? '',
+        freq: item?.Freq_Desc ?? item?.Freetext2 ?? '',
+        Freq_Desc: item?.Freq_Desc ?? item?.Freetext2 ?? '',
+        warning: item?.Freetext3 ?? item?.warning ?? item?.Warning ?? 'หลังเปิดขวดควรใช้ทันที',
         categoryCode: item?.Zone ?? item?.categoryCode ?? item?.Freetext3 ?? 'B',
         binId: rawBin || '102',
         qty: item?.DispensedDose ? String(item.DispensedDose) : (item?.orderqty ? String(item.orderqty) : '1'),
-        unit: item?.DispensedUnit ?? item?.orderunit ?? 'VIAL',
+        unit: item?.DrugUnit ?? item?.OrderUnit ?? item?.orderunit ?? item?.DispensedUnit ?? 'VIAL',
         index: `${item?.SeqNo || 1}/${this.listDetail?.length || 1}`,
         edType: item?.ED ?? 'ED',
         stockName: 'FloorStock-IPD',
