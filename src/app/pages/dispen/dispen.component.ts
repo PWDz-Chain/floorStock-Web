@@ -506,7 +506,10 @@ export class DispenComponent implements AfterViewInit {
       })
       .subscribe({
         next: (response) => {
-          const rawDetail = Array.isArray(response) ? response : [];
+          // กรองเฉพาะยาที่มีช่องในตู้ (BinID ไม่ว่าง) หากยาไม่มีในตู้จะไม่แสดง แต่ถ้ายาหมด (AvailableQty = 0) จะแสดงเหมือนเดิม
+          const rawDetail = (Array.isArray(response) ? response : []).filter(
+            (item) => item?.BinID !== null && item?.BinID !== undefined && item?.BinID !== ''
+          );
           const detailWithAvailable = rawDetail.map((item) => ({
             ...item,
             AvailableQty: this.getAvailableQty(item),
@@ -852,14 +855,8 @@ export class DispenComponent implements AfterViewInit {
           this.cdr.detectChanges();
         },
         error: (error: HttpErrorResponse) => {
-          console.error(error);
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          this.service.alert(
-            'error',
-            'ส่งรายการยาไม่สำเร็จ',
-            'กรุณาลองใหม่อีกครั้ง'
-          );
+          console.error('itemDispen error:', error);
+          this.checkDispense();
         },
       });
 
@@ -1055,15 +1052,18 @@ export class DispenComponent implements AfterViewInit {
           }
         },
         error: (error: HttpErrorResponse) => {
-          console.error(error);
-          this.isLoading = false;
-          this.checkDispenseRetries = 0;
-          this.getDetail(this.selectOrder, false);
-          this.service.alert(
-            'error',
-            'ส่งรายการยาไม่สำเร็จ',
-            'กรุณาลองใหม่อีกครั้ง'
-          );
+          console.error('checkDispense error:', error);
+          if (this.checkDispenseRetries < 30) {
+            this.checkDispenseRetries++;
+            setTimeout(() => {
+              this.checkDispense();
+            }, 1000);
+          } else {
+            this.isLoading = false;
+            this.checkDispenseRetries = 0;
+            this.fetchOrder(undefined, false);
+            this.getDetail(this.selectOrder, false);
+          }
         },
       });
   }
