@@ -588,21 +588,17 @@ export class DispenComponent implements AfterViewInit {
           }
         },
         error: (error: HttpErrorResponse) => {
-          console.error(error);
+          console.error('getDetail error:', error);
           this.isLoading = false;
           this.cdr.detectChanges();
-          if (error.status === 404) {
-            this.service.alert(
-              'error',
-              'ไม่พบข้อมูลการสั่งยา',
-              'กรุณาลองใหม่อีกครั้ง'
-            );
-          } else {
-            this.service.alert(
-              'error',
-              'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
-              'กรุณาลองใหม่อีกครั้ง'
-            );
+          // แสดง alert เฉพาะกรณีผู้ใช้กดเปิด modal เอง (playSound === true)
+          // หากเป็นการ refresh เบื้องหลังหลังจ่ายยา (playSound === false) ให้เงียบไว้ ไม่รบกวนผู้ใช้
+          if (playSound) {
+            if (error.status === 404) {
+              this.service.alert('error', 'ไม่พบข้อมูลการสั่งยา', 'กรุณาลองใหม่อีกครั้ง');
+            } else {
+              this.service.alert('error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'กรุณาลองใหม่อีกครั้ง');
+            }
           }
         },
       });
