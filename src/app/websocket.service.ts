@@ -41,7 +41,10 @@ export class WebsocketService {
    * - prod: http://200.200.200.10:3000 -> ws://200.200.200.10:3000
    */
   private getWsUrl(): string {
-    const base = (environment.baseUrl || 'http://localhost:3000').trim();
+    let base = (environment.baseUrl || 'http://localhost:3000').trim();
+    if (!base.endsWith('/')) {
+      base += '/';
+    }
     const wsProtocol = base.startsWith('https') ? 'wss:' : 'ws:';
     const host = base.replace(/^https?:\/\//, '');
     return `${wsProtocol}//${host}`;
