@@ -836,6 +836,9 @@ export class DispenComponent implements AfterViewInit {
     this.cdr.detectChanges();
     await this.sendPrint();
 
+    const pNo = item?.PrescriptionNo || this.selectOrder?.PrescriptionNo;
+    const seq = item?.SeqNo ?? this.selectItem?.SeqNo;
+
     this.service
       .post('itemDispen', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
@@ -849,6 +852,9 @@ export class DispenComponent implements AfterViewInit {
             this.selectItem.PrintDatetime = new Date().toISOString();
           }
           this.cdr.detectChanges();
+
+          // เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS
+          this.callHosItemFloorStock(pNo, seq);
         },
         error: (error: HttpErrorResponse) => {
           console.error('itemDispen error:', error);
@@ -867,6 +873,9 @@ export class DispenComponent implements AfterViewInit {
 
     await this.sendPrint();
 
+    const pNo = item?.PrescriptionNo || this.selectOrder?.PrescriptionNo;
+    const seq = item?.SeqNo ?? this.selectItem?.SeqNo;
+
     this.service
       .post('itemDispen', {
         prescriptionNo: this.selectOrder.PrescriptionNo,
@@ -879,6 +888,9 @@ export class DispenComponent implements AfterViewInit {
             this.selectItem.DispenseDatetime = new Date().toISOString();
           }
           this.cdr.detectChanges();
+
+          // เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS
+          this.callHosItemFloorStock(pNo, seq);
         },
         error: (error: HttpErrorResponse) => {
           console.error(error);
@@ -941,6 +953,9 @@ export class DispenComponent implements AfterViewInit {
       this.selectItem = item;
       await this.sendPrint();
 
+      const pNo = item?.PrescriptionNo || this.selectOrder?.PrescriptionNo;
+      const seq = item?.SeqNo;
+
       this.service
         .post('itemDispen', {
           prescriptionNo: this.selectOrder.PrescriptionNo,
@@ -951,6 +966,9 @@ export class DispenComponent implements AfterViewInit {
           next: (response) => {
             item.DispenseDatetime = new Date().toISOString();
             this.cdr.detectChanges();
+
+            // เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS
+            this.callHosItemFloorStock(pNo, seq);
           },
           error: (error: HttpErrorResponse) => {
             console.error(error);
@@ -959,6 +977,45 @@ export class DispenComponent implements AfterViewInit {
     }
 
     this.checkDispense();
+  }
+
+  /**
+   * เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS (192.168.96.5/api/hos/item-floorstock)
+   * ข้อมูลจริงจากการรับยา: PrescriptionNo, SeqNo
+   */
+  callHosItemFloorStock(prescriptionNo: string, seqNo: any): void {
+    if (!prescriptionNo || seqNo === null || seqNo === undefined || String(seqNo).trim() === '') {
+      console.warn('[HOS FloorStock] Missing PrescriptionNo or SeqNo:', { prescriptionNo, seqNo });
+      return;
+    }
+
+    const payload = {
+      PrescriptionNo: String(prescriptionNo).trim(),
+      SeqNo: isNaN(Number(seqNo)) ? seqNo : Number(seqNo),
+    };
+
+    console.log('[HOS FloorStock] >>> Sending Item-FloorStock update:', payload);
+
+    this.service.updateHosItemFloorStock(payload).subscribe({
+      next: (res) => {
+        console.log('[HOS FloorStock] <<< Update success:', res);
+        this.service.logClient(
+          'INFO',
+          'HOS_FLOORSTOCK',
+          `Updated status for Rx #${payload.PrescriptionNo} Seq #${payload.SeqNo}`,
+          res
+        );
+      },
+      error: (err) => {
+        console.error('[HOS FloorStock] <<< Update failed:', err);
+        this.service.logClient(
+          'ERROR',
+          'HOS_FLOORSTOCK',
+          `Failed to update status for Rx #${payload.PrescriptionNo} Seq #${payload.SeqNo}`,
+          err?.message || err
+        );
+      },
+    });
   }
 
   async printAgian(item: any): Promise<void> {
