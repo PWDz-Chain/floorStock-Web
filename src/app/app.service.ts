@@ -30,6 +30,32 @@ export class AppService {
   }
 
   /**
+   * ส่งข้อมูลยืนยันการรับยา/ตัดสต็อกไปยัง HOS API (FloorStock)
+   * URL: http://192.168.96.5/api/hos/item-floorstock
+   * Method: POST
+   * Parameters: PrescriptionNo, SeqNo
+   */
+  updateHosItemFloorStock(
+    prescriptionNoOrPayload: string | { PrescriptionNo: string; SeqNo: any } | Array<{ PrescriptionNo: string; SeqNo: any }>,
+    seqNo?: any
+  ): Observable<any> {
+    const url = (environment as any).hosFloorStockUrl || 'http://192.168.96.5/api/hos/item-floorstock';
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    let payload: any;
+    if (typeof prescriptionNoOrPayload === 'string') {
+      payload = {
+        PrescriptionNo: prescriptionNoOrPayload.trim(),
+        SeqNo: isNaN(Number(seqNo)) ? seqNo : Number(seqNo),
+      };
+    } else {
+      payload = prescriptionNoOrPayload;
+    }
+
+    return this.http.post(url, payload, { headers });
+  }
+
+  /**
    * ส่ง Log จากหน้าจอ Kiosk Client ไปบันทึกลงไฟล์ transaction-YYYY-MM-DD.txt ฝั่ง Server
    */
   logClient(level: 'INFO' | 'WARN' | 'ERROR', category: string, message: string, data: any = null): void {
