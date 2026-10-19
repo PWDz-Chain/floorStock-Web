@@ -841,28 +841,32 @@ export class DispenComponent implements AfterViewInit {
 
     this.service
       .post('itemDispen', {
-        prescriptionNo: this.selectOrder.PrescriptionNo,
-        SeqNo: this.selectItem.SeqNo,
+        prescriptionNo: pNo,
+        SeqNo: seq,
         UserId: this.userInfo?.UserId || 'KIOSK',
       })
       .subscribe({
         next: (response) => {
+          item.DispenseDatetime = new Date().toISOString();
+          item.PrintDatetime = new Date().toISOString();
           if (this.selectItem) {
-            this.selectItem.DispenseDatetime = new Date().toISOString();
-            this.selectItem.PrintDatetime = new Date().toISOString();
+            this.selectItem.DispenseDatetime = item.DispenseDatetime;
+            this.selectItem.PrintDatetime = item.PrintDatetime;
           }
           this.cdr.detectChanges();
 
           // เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS
           this.callHosItemFloorStock(pNo, seq);
+
+          // เริ่มเช็คสถานะตู้ยา "หลังจาก" บันทึก itemDispen สำเร็จแล้ว
+          this.checkDispense(seq);
         },
         error: (error: HttpErrorResponse) => {
           console.error('itemDispen error:', error);
-          this.checkDispense();
+          this.callHosItemFloorStock(pNo, seq);
+          this.checkDispense(seq);
         },
       });
-
-    this.checkDispense();
   }
 
   async dispenItem(item: any): Promise<void> {
@@ -878,19 +882,23 @@ export class DispenComponent implements AfterViewInit {
 
     this.service
       .post('itemDispen', {
-        prescriptionNo: this.selectOrder.PrescriptionNo,
-        SeqNo: this.selectItem.SeqNo,
+        prescriptionNo: pNo,
+        SeqNo: seq,
         UserId: this.userInfo?.UserId || 'KIOSK',
       })
       .subscribe({
         next: (response) => {
+          item.DispenseDatetime = new Date().toISOString();
           if (this.selectItem) {
-            this.selectItem.DispenseDatetime = new Date().toISOString();
+            this.selectItem.DispenseDatetime = item.DispenseDatetime;
           }
           this.cdr.detectChanges();
 
           // เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS
           this.callHosItemFloorStock(pNo, seq);
+
+          // เริ่มเช็คสถานะตู้ยา "หลังจาก" บันทึก itemDispen สำเร็จแล้ว
+          this.checkDispense(seq);
         },
         error: (error: HttpErrorResponse) => {
           console.error(error);
@@ -903,8 +911,6 @@ export class DispenComponent implements AfterViewInit {
           );
         },
       });
-
-    this.checkDispense();
   }
 
   getReadyCount(): number {
@@ -949,6 +955,7 @@ export class DispenComponent implements AfterViewInit {
       console.warn('Android interface not found');
     }
 
+    let completedCount = 0;
     for (const item of readyItems) {
       this.selectItem = item;
       await this.sendPrint();
@@ -958,8 +965,8 @@ export class DispenComponent implements AfterViewInit {
 
       this.service
         .post('itemDispen', {
-          prescriptionNo: this.selectOrder.PrescriptionNo,
-          SeqNo: item.SeqNo,
+          prescriptionNo: pNo,
+          SeqNo: seq,
           UserId: this.userInfo?.UserId || 'KIOSK',
         })
         .subscribe({
@@ -969,14 +976,21 @@ export class DispenComponent implements AfterViewInit {
 
             // เรียก API อัพเดทสถานะ item-floorstock ไปยังระบบ HOS
             this.callHosItemFloorStock(pNo, seq);
+
+            completedCount++;
+            if (completedCount === readyItems.length) {
+              this.checkDispense('');
+            }
           },
           error: (error: HttpErrorResponse) => {
             console.error(error);
+            completedCount++;
+            if (completedCount === readyItems.length) {
+              this.checkDispense('');
+            }
           },
         });
     }
-
-    this.checkDispense();
   }
 
   /**
@@ -1078,8 +1092,8 @@ export class DispenComponent implements AfterViewInit {
 
   private checkDispenseRetries: number = 0;
 
-  checkDispense(): void {
-    const seq = this.selectItem?.SeqNo ?? '';
+  checkDispense(targetSeq?: any): void {
+    const seq = targetSeq !== undefined ? targetSeq : (this.selectItem?.SeqNo ?? '');
     this.service
       .post('checkDispense', {
         prescriptionNo: this.selectOrder?.PrescriptionNo,
@@ -1095,7 +1109,7 @@ export class DispenComponent implements AfterViewInit {
           } else if (this.checkDispenseRetries < 30) {
             this.checkDispenseRetries++;
             setTimeout(() => {
-              this.checkDispense();
+              this.checkDispense(seq);
             }, 1000);
           } else {
             this.isLoading = false;
@@ -1109,7 +1123,7 @@ export class DispenComponent implements AfterViewInit {
           if (this.checkDispenseRetries < 30) {
             this.checkDispenseRetries++;
             setTimeout(() => {
-              this.checkDispense();
+              this.checkDispense(seq);
             }, 1000);
           } else {
             this.isLoading = false;

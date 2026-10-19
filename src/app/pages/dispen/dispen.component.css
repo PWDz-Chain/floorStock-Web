@@ -1416,6 +1416,16 @@
   box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
 }
 
+.btn-action-dispense:disabled,
+.btn-action-print:disabled,
+.btn-action-pharmacy:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+
 /* ============================================
    PRESCRIPTION MODAL
 ============================================ */
