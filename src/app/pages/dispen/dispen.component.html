@@ -573,6 +573,7 @@
                   <button
                     type="button"
                     class="btn-action-dispense"
+                    [disabled]="isLoading"
                     (click)="sendItem(element)"
                   >
                     ⚡ รับยา
@@ -582,6 +583,7 @@
                   <button
                     type="button"
                     class="btn-action-print"
+                    [disabled]="isLoading"
                     (click)="printAgian(element)"
                   >
                     🖨️ พิมพ์ฉลาก
@@ -591,6 +593,7 @@
                   <button
                     type="button"
                     class="btn-action-pharmacy"
+                    [disabled]="isLoading"
                     (click)="dispenItem(element)"
                   >
                     🏥 รับที่ห้องยา
