@@ -1,6 +1,77 @@
-<div *ngIf="isLoading" class="spinner-overlay">
-  <div class="spinner-border text-primary" role="status">
-    <span class="sr-only">กำลังประมวลผล...</span>
+<!-- ============================================
+     FORMAL HIGH-SPEED MEDICATION DISPENSING MODAL
+============================================ -->
+<div *ngIf="isLoading" class="dispense-loading-backdrop">
+  <div class="dispense-modal-card animate-pop-in">
+    
+    <!-- Top Glowing Accent Line -->
+    <div class="dispense-top-glow"></div>
+
+    <!-- Robot Character Rushing to Fetch Medicine -->
+    <div class="cartoon-avatar-wrapper">
+      <div class="cartoon-halo-ring"></div>
+      <img src="assets/img/fetching-medicine.png" alt="ระบบกำลังนำส่งยา" class="cartoon-delivery-img">
+      <div class="cartoon-status-pill">
+        <span class="pulse-indicator"></span>
+        <span>{{ isDispensing ? 'ระบบกำลังนำส่งยา' : 'กำลังเชื่อมต่อระบบ' }}</span>
+      </div>
+    </div>
+
+    <!-- Title & Medication Details (Formal Tone) -->
+    <div class="dispense-modal-body">
+      <h3 class="dispense-main-title">
+        {{ isDispensing ? 'ระบบกำลังดำเนินการจัดเตรียมและนำส่งยา' : 'กรุณารอสักครู่...' }}
+      </h3>
+      <p class="dispense-sub-guidance" *ngIf="isDispensing">
+        กลไกอัตโนมัติกำลังเบิกจ่ายยาตามใบสั่งแพทย์ กรุณารอรับที่ช่องจ่ายยา
+      </p>
+      
+      <!-- Drug Info Badge (if dispensing) -->
+      <div class="dispense-drug-card" *ngIf="isDispensing && selectItem?.DrugName">
+        <div class="drug-card-header">
+          <span class="drug-icon">💊</span>
+          <span class="drug-name-text">{{ selectItem.DrugName }}</span>
+        </div>
+        <div class="drug-card-details">
+          <span class="detail-badge qty-badge" *ngIf="selectItem?.DispensedDose">
+            จำนวนสั่งจ่าย: <strong>{{ selectItem.DispensedDose }} {{ selectItem.DispensedUnit || 'หน่วย' }}</strong>
+          </span>
+          <span class="detail-badge patient-badge" *ngIf="selectOrder?.PatientName">
+            ผู้ป่วย: <strong>{{ selectOrder.PatientName }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <!-- Real-time Step Status -->
+      <div class="dispense-step-indicator" *ngIf="isDispensing">
+        <div class="step-icon-circle animate-subtle-bounce">
+          <span>{{ currentDispenseStep.icon }}</span>
+        </div>
+        <div class="step-info-col">
+          <div class="step-text-main">{{ currentDispenseStep.title }}</div>
+          <div class="step-text-sub">{{ currentDispenseStep.subtitle }}</div>
+        </div>
+      </div>
+
+      <!-- Smooth High-Speed Progress Bar -->
+      <div class="dispense-progress-block">
+        <div class="dispense-track">
+          <div class="dispense-fill" [style.width.%]="isDispensing ? dispenseProgressPercent : 60"></div>
+        </div>
+        <div class="dispense-progress-meta">
+          <span class="speed-tag">⚡ Standby Lift System (~6-8 วินาที)</span>
+          <span class="percent-tag" *ngIf="isDispensing">{{ dispenseProgressPercent }}%</span>
+        </div>
+      </div>
+
+      <!-- Reassurance Hospital Footer (Formal) -->
+      <div class="dispense-safety-footer">
+        <span class="shield-icon">🛡️</span>
+        <span>ระบบตรวจสอบตำแหน่งช่องยาอัตโนมัติ แม่นยำ ปลอดภัยตามมาตรฐานความปลอดภัยโรงพยาบาล</span>
+      </div>
+
+    </div>
+
   </div>
 </div>
 
