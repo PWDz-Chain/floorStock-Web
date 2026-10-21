@@ -1709,3 +1709,301 @@
 }
 
 
+
+
+/* ============================================
+   CUTE CARTOON MEDICATION DISPENSING MODAL
+============================================ */
+
+.dispense-loading-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  padding: 20px;
+}
+
+.dispense-modal-card {
+  background: #ffffff;
+  border-radius: 28px;
+  width: 440px;
+  max-width: 95vw;
+  box-shadow: 0 25px 60px -12px rgba(15, 76, 129, 0.45), 0 0 0 1px rgba(226, 232, 240, 0.9);
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  font-family: 'Prompt', 'Sarabun', -apple-system, sans-serif;
+  animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dispense-top-glow {
+  height: 6px;
+  width: 100%;
+  background: linear-gradient(90deg, #1062fe, #0072c3, #0284c7, #10b981, #1062fe);
+  background-size: 250% 100%;
+  animation: glowMove 2.5s linear infinite;
+}
+
+.cartoon-avatar-wrapper {
+  margin-top: 26px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartoon-halo-ring {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(224, 242, 254, 0.95) 0%, rgba(219, 234, 254, 0.5) 65%, transparent 100%);
+  border-radius: 50%;
+  position: absolute;
+  animation: haloPulse 2.2s ease-in-out infinite;
+}
+
+.cartoon-delivery-img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 10px 18px rgba(2, 132, 199, 0.22));
+  animation: cartoonBounce 2.4s ease-in-out infinite;
+}
+
+.cartoon-status-pill {
+  white-space: nowrap;
+  position: absolute;
+  bottom: -6px;
+  z-index: 3;
+  background: #ffffff;
+  border: 1.5px solid #bfdbfe;
+  color: #0284c7;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0284c7;
+  animation: pulseDot 1.2s infinite;
+}
+
+.dispense-modal-body {
+  padding: 20px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dispense-main-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.dispense-drug-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 10px 16px;
+  text-align: left;
+}
+
+.drug-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.drug-icon {
+  font-size: 1.1rem;
+}
+
+.drug-name-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f4c81;
+}
+
+.drug-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-badge {
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+.qty-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.patient-badge {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.dispense-step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0f7ff;
+  border: 1px solid #d0e7ff;
+  border-radius: 14px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.step-icon-circle {
+  width: 42px;
+  height: 42px;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 3px 8px rgba(16, 98, 254, 0.15);
+  flex-shrink: 0;
+}
+
+.step-info-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.step-text-main {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0043ce;
+  line-height: 1.3;
+}
+
+.step-text-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.dispense-progress-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.dispense-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dispense-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1062fe, #0284c7, #10b981);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+  background-size: 30px 30px;
+  background-image: linear-gradient(45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent);
+  animation: progressStripe 1s linear infinite;
+}
+
+.dispense-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.speed-tag {
+  color: #0284c7;
+  font-weight: 600;
+}
+
+.percent-tag {
+  color: #475569;
+  font-weight: 700;
+}
+
+.dispense-safety-footer {
+  font-size: 0.78rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes cartoonBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-1.5deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-3px) rotate(1.5deg); }
+}
+
+@keyframes haloPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 0.95; }
+}
+
+@keyframes glowMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 250% 50%; }
+}
+
+@keyframes progressStripe {
+  0% { background-position: 0 0; }
+  100% { background-position: 30px 0; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+@keyframes subtleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.dispense-sub-guidance {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: -4px 0 2px 0;
+  line-height: 1.4;
+}

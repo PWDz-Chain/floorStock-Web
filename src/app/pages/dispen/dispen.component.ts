@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { AppService } from 'src/app/app.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -25,9 +25,94 @@ declare global {
   templateUrl: './dispen.component.html',
   styleUrls: ['./dispen.component.css'],
 })
-export class DispenComponent implements AfterViewInit {
+export class DispenComponent implements AfterViewInit, OnDestroy {
   assets: any = null;
   isLoading: boolean = false;
+
+  // ============================================
+  // CUTE CARTOON DISPENSING MODAL STATE
+  // ============================================
+  isDispensing: boolean = false;
+  dispenseStepIndex: number = 0;
+  dispenseProgressPercent: number = 0;
+  dispenseInterval: any = null;
+  dispenseSteps: Array<{ icon: string; title: string; subtitle: string }> = [
+    {
+      icon: '🛗',
+      title: 'ลิฟต์กำลังเคลื่อนที่ไปยังพิกัดช่องเก็บยา...',
+      subtitle: 'เข้าสู่พิกัดจัดเก็บยาอัตโนมัติความเร็วสูง'
+    },
+    {
+      icon: '📦',
+      title: 'กลไกกำลังนำส่งยาลงสู่ตะกร้าลำเลียง...',
+      subtitle: 'ตรวจนับจำนวนยาและส่งต่อเข้าสู่ระบบขนส่งภายในตู้'
+    },
+    {
+      icon: '🏎️',
+      title: 'ลิฟต์ความเร็วสูงกำลังนำส่งยาลงสู่ช่องจ่ายยา...',
+      subtitle: 'ระบบ High-Speed Cycle ประตูฉนวนเปิดพร้อมรับยา'
+    },
+    {
+      icon: '🚪',
+      title: 'ประตูจ่ายยาเปิดออกแล้ว กรุณารับยาที่ช่องรับยาด้านล่าง 👇',
+      subtitle: 'หยิบยาออกจากช่องรับ ระบบตรวจจับเซนเซอร์และปิดประตูอัตโนมัติ'
+    }
+  ];
+
+  get currentDispenseStep(): { icon: string; title: string; subtitle: string } {
+    return this.dispenseSteps[this.dispenseStepIndex] || this.dispenseSteps[0];
+  }
+
+  startDispensingAnimation(item?: any): void {
+    this.isDispensing = true;
+    this.dispenseStepIndex = 0;
+    this.dispenseProgressPercent = 8;
+
+    if (this.dispenseInterval) {
+      clearInterval(this.dispenseInterval);
+    }
+
+    const startTime = Date.now();
+    const targetDurationMs = 7000;
+
+    this.dispenseInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(95, Math.floor((elapsed / targetDurationMs) * 95));
+      this.dispenseProgressPercent = Math.max(this.dispenseProgressPercent, progress);
+
+      if (this.dispenseProgressPercent < 25) {
+        this.dispenseStepIndex = 0;
+      } else if (this.dispenseProgressPercent < 55) {
+        this.dispenseStepIndex = 1;
+      } else if (this.dispenseProgressPercent < 85) {
+        this.dispenseStepIndex = 2;
+      } else {
+        this.dispenseStepIndex = 3;
+      }
+      this.cdr.detectChanges();
+    }, 250);
+  }
+
+  stopDispensingAnimation(isSuccess: boolean = true): void {
+    if (this.dispenseInterval) {
+      clearInterval(this.dispenseInterval);
+      this.dispenseInterval = null;
+    }
+    if (isSuccess) {
+      this.dispenseProgressPercent = 100;
+      this.dispenseStepIndex = 3;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.isDispensing = false;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }, 1200);
+    } else {
+      this.isDispensing = false;
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
   isRefreshing: boolean = false;
   userInfo: any = null;
   selectedDate: string = moment(new Date()).format('YYYY-MM-DD');
@@ -146,6 +231,7 @@ export class DispenComponent implements AfterViewInit {
       }
 
       const data = {
+        action: 'standby_lift',
         PrescriptionNo: null,
         SeqNo: null,
         check: 2,
@@ -812,6 +898,19 @@ export class DispenComponent implements AfterViewInit {
     this.selectItem = item;
     this.checkDispenseRetries = 0;
 
+    let row = Number(item?.row ?? item?.Row ?? 0);
+    let col = Number(item?.column ?? item?.Column ?? 0);
+    if ((!row || !col) && item?.BinID) {
+      const binStr = String(item.BinID).trim();
+      if (binStr.length >= 3) {
+        row = parseInt(binStr.substring(0, binStr.length - 2), 10) || 1;
+        col = parseInt(binStr.substring(binStr.length - 2), 10) || 1;
+      } else if (binStr.length === 2) {
+        row = parseInt(binStr[0], 10) || 1;
+        col = parseInt(binStr[1], 10) || 1;
+      }
+    }
+
     const data = {
       PrescriptionNo: this.selectOrder.PrescriptionNo,
       SeqNo: this.selectItem.SeqNo,
@@ -823,6 +922,10 @@ export class DispenComponent implements AfterViewInit {
       bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
       patientName: this.selectOrder?.PatientName ?? '',
       hn: this.selectOrder?.Hn ?? '',
+      row: row || 1,
+      column: col || 1,
+      drugMax: Number(item?.drugMax ?? item?.DrugMax ?? 5),
+      DrugCd: item?.DrugCd ?? item?.drugCode ?? item?.drugcd ?? ''
     };
 
     if (window.Android && window.Android.receiveJson) {
@@ -935,6 +1038,35 @@ export class DispenComponent implements AfterViewInit {
     this.checkDispenseRetries = 0;
     this.cdr.detectChanges();
 
+    const itemsPayload = readyItems.map((item) => {
+      let r = Number(item?.row ?? item?.Row ?? 0);
+      let c = Number(item?.column ?? item?.Column ?? 0);
+      if ((!r || !c) && item?.BinID) {
+        const binStr = String(item.BinID).trim();
+        if (binStr.length >= 3) {
+          r = parseInt(binStr.substring(0, binStr.length - 2), 10) || 1;
+          c = parseInt(binStr.substring(binStr.length - 2), 10) || 1;
+        } else if (binStr.length === 2) {
+          r = parseInt(binStr[0], 10) || 1;
+          c = parseInt(binStr[1], 10) || 1;
+        }
+      }
+      return {
+        PrescriptionNo: this.selectOrder.PrescriptionNo,
+        SeqNo: item?.SeqNo,
+        row: r || 1,
+        column: c || 1,
+        drugMax: Number(item?.drugMax ?? item?.DrugMax ?? 5),
+        DrugCd: item?.DrugCd ?? item?.drugCode ?? item?.drugcd ?? '',
+        warddesc: this.selectOrder?.WardName ?? this.selectOrder?.wardname ?? '',
+        wardcode: this.selectOrder?.WardCd ?? this.selectOrder?.wardcode ?? '',
+        WardCd: this.selectOrder?.WardCd ?? this.selectOrder?.wardcode ?? '',
+        bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
+        patientName: this.selectOrder?.PatientName ?? '',
+        hn: this.selectOrder?.Hn ?? '',
+      };
+    });
+
     const data = {
       PrescriptionNo: this.selectOrder.PrescriptionNo,
       SeqNo: '',
@@ -946,6 +1078,7 @@ export class DispenComponent implements AfterViewInit {
       bedno: this.selectOrder?.BedNo ?? this.selectOrder?.bedno ?? '',
       patientName: this.selectOrder?.PatientName ?? '',
       hn: this.selectOrder?.Hn ?? '',
+      items: itemsPayload
     };
 
     if (window.Android && window.Android.receiveJson) {
@@ -1191,4 +1324,11 @@ export class DispenComponent implements AfterViewInit {
     this.service.playSound('click');
     this.location.back();
   }
-}
+
+  ngOnDestroy(): void {
+    if (this.dispenseInterval) {
+      clearInterval(this.dispenseInterval);
+      this.dispenseInterval = null;
+    }
+  }
+}
